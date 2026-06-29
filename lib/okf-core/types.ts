@@ -24,3 +24,11 @@ export interface ValidationIssue {
   field?: string;
   message: string;
 }
+
+export interface Link {
+  from: string;
+  toRaw: string;
+  to?: string;
+  resolved: boolean;
+  external: boolean;
+}
