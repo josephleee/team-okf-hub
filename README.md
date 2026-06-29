@@ -77,6 +77,17 @@ npm run okf -- query bundles/example orders  # full-text search
 npm run okf -- index bundles/example okf.sqlite  # build a SQLite index file
 ```
 
+## Run the web app (M1b)
+
+```bash
+npm install
+npm run dev          # http://localhost:3000
+# OKF_BUNDLE_DIR=/path/to/your/okf-bundle npm run dev   # use your own bundle
+```
+
+Pages: `/` (browse by type) · `/concept/<path>` (rendered concept + backlinks) ·
+`/search?q=` (full-text search) · `/graph` (interactive concept graph).
+
 ## Tech stack
 
 Next.js (App Router) · TypeScript · SQLite (FTS5) · GitHub OAuth (Auth.js) ·
