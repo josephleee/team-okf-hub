@@ -32,3 +32,9 @@ export interface Link {
   resolved: boolean;
   external: boolean;
 }
+
+export interface Bundle {
+  concepts: Concept[];
+  links: Link[];
+  issues: ValidationIssue[];
+}
