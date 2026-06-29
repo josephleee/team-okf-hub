@@ -48,6 +48,24 @@ describe('queries', () => {
     expect(back).toContain('metrics/wau.md');
   });
 
+  it('backlinks returns each source EXACTLY ONCE even when it links the target twice', () => {
+    const FILES_DUP: RawFile[] = [
+      {
+        path: 'tables/customers.md',
+        content: '---\ntype: Table\ntitle: Customers\n---\nCustomers data.',
+      },
+      {
+        path: 'tables/orders.md',
+        content:
+          '---\ntype: Table\ntitle: Orders\n---\nLinks [a](customers.md) and again [b](customers.md).',
+      },
+    ];
+    const d = new Database(':memory:');
+    buildIndex(d, buildBundle(FILES_DUP));
+    const back = backlinks(d, 'tables/customers.md').map((c) => c.path);
+    expect(back.filter((p) => p === 'tables/orders.md')).toHaveLength(1);
+  });
+
   it('graphNeighborhood returns the node and its immediate neighbors', () => {
     const g = graphNeighborhood(db(), 'tables/orders.md', 1);
     const ids = g.nodes.map((n) => n.path).sort();

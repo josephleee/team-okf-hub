@@ -44,19 +44,24 @@ export async function runIndex(dir: string, outFile: string, log: Logger = stdou
 }
 
 export async function main(argv: string[]): Promise<number> {
-  const [cmd, ...rest] = argv;
-  switch (cmd) {
-    case 'validate':
-      if (!rest[0]) return usage('validate <bundle-dir>');
-      return runValidate(rest[0]);
-    case 'query':
-      if (!rest[0] || !rest[1]) return usage('query <bundle-dir> <terms...>');
-      return runQuery(rest[0], rest.slice(1).join(' '));
-    case 'index':
-      if (!rest[0] || !rest[1]) return usage('index <bundle-dir> <out.sqlite>');
-      return runIndex(rest[0], rest[1]);
-    default:
-      return usage('<validate|query|index> ...');
+  try {
+    const [cmd, ...rest] = argv;
+    switch (cmd) {
+      case 'validate':
+        if (!rest[0]) return usage('validate <bundle-dir>');
+        return await runValidate(rest[0]);
+      case 'query':
+        if (!rest[0] || !rest[1]) return usage('query <bundle-dir> <terms...>');
+        return await runQuery(rest[0], rest.slice(1).join(' '));
+      case 'index':
+        if (!rest[0] || !rest[1]) return usage('index <bundle-dir> <out.sqlite>');
+        return await runIndex(rest[0], rest[1]);
+      default:
+        return usage('<validate|query|index> ...');
+    }
+  } catch (err) {
+    process.stderr.write(`okf: ${err instanceof Error ? err.message : String(err)}\n`);
+    return 1;
   }
 }
 
@@ -67,5 +72,10 @@ function usage(msg: string): number {
 
 // Run only when invoked directly (e.g. `tsx scripts/okf.ts ...`), not when imported by tests.
 if (process.argv[1] && process.argv[1].endsWith('okf.ts')) {
-  main(process.argv.slice(2)).then((code) => process.exit(code));
+  main(process.argv.slice(2))
+    .then((code) => process.exit(code))
+    .catch((err) => {
+      process.stderr.write(`okf: ${err instanceof Error ? err.message : String(err)}\n`);
+      process.exit(1);
+    });
 }

@@ -36,7 +36,7 @@ export function listConcepts(db: DB, opts: { type?: string; tag?: string } = {})
   if (opts.tag) {
     return db
       .prepare(
-        `SELECT c.path, c.type, c.title FROM concepts c
+        `SELECT DISTINCT c.path, c.type, c.title FROM concepts c
          JOIN tags t ON t.concept_path = c.path
          WHERE t.tag = ?${opts.type ? ' AND c.type = ?' : ''}
          ORDER BY c.path`,
@@ -78,7 +78,7 @@ export function searchConcepts(db: DB, query: string): SearchHit[] {
 export function backlinks(db: DB, path: string): ConceptSummary[] {
   return db
     .prepare(
-      `SELECT c.path, c.type, c.title FROM links l
+      `SELECT DISTINCT c.path, c.type, c.title FROM links l
        JOIN concepts c ON c.path = l.src_path
        WHERE l.dst_path = ? ORDER BY c.path`,
     )

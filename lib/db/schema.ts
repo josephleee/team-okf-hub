@@ -3,6 +3,11 @@ import type Database from 'better-sqlite3';
 export type DB = Database.Database;
 
 export const SCHEMA = `
+DROP TABLE IF EXISTS concepts;
+DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS links;
+DROP TABLE IF EXISTS concepts_fts;
+DROP TABLE IF EXISTS sync_state;
 CREATE TABLE concepts (
   path TEXT PRIMARY KEY,
   type TEXT NOT NULL,

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mkdtemp, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { runValidate, runQuery } from './okf';
+import { runValidate, runQuery, runIndex, main } from './okf';
 
 const EXAMPLE = join(process.cwd(), 'bundles/example');
 
@@ -35,5 +35,18 @@ describe('okf CLI', () => {
     const code = await runQuery(EXAMPLE, 'orders', (s) => lines.push(s));
     expect(code).toBe(0);
     expect(lines.join('\n')).toContain('tables/orders.md');
+  });
+
+  it('runIndex called TWICE to the same file both exit 0 (idempotent schema)', async () => {
+    const outFile = join(tmpdir(), `okf-rerun-test-${Date.now()}.sqlite`);
+    const code1 = await runIndex(EXAMPLE, outFile, () => {});
+    const code2 = await runIndex(EXAMPLE, outFile, () => {});
+    expect(code1).toBe(0);
+    expect(code2).toBe(0);
+  });
+
+  it('main returns 1 (not throws) when the bundle path does not exist', async () => {
+    const code = await main(['validate', join(tmpdir(), 'okf-does-not-exist-xyz')]);
+    expect(code).toBe(1);
   });
 });
