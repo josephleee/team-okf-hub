@@ -68,6 +68,15 @@ Browser / AI agent  ─▶  OKF Hub (Next.js: UI + REST + MCP)  ─▶  SQLite i
 See [`docs/superpowers/specs/2026-06-29-okf-hub-design.md`](docs/superpowers/specs/2026-06-29-okf-hub-design.md)
 for the full design.
 
+## CLI (development)
+
+```bash
+npm install
+npm run okf -- validate bundles/example   # validate an OKF bundle (exit 1 on errors)
+npm run okf -- query bundles/example orders  # full-text search
+npm run okf -- index bundles/example okf.sqlite  # build a SQLite index file
+```
+
 ## Tech stack
 
 Next.js (App Router) · TypeScript · SQLite (FTS5) · GitHub OAuth (Auth.js) ·
