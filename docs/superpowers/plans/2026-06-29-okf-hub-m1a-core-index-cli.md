@@ -1488,7 +1488,7 @@ export function graphNeighborhood(db: DB, path: string, depth = 1): GraphData {
   // de-duplicate edges
   const seen = new Set<string>();
   const uniqueEdges = edges.filter((e) => {
-    const key = `${e.from} ${e.to}`;
+    const key = `${e.from} ${e.to}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
