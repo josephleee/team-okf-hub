@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+
+# Next.js / build output
+.next/
+out/
+build/
+dist/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OKF Hub local data (regenerable cache + local clone)
+*.sqlite
+*.sqlite3
+*.db
+data/
+.okf-cache/
+workspace-repo/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
