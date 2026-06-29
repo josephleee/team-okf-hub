@@ -3,7 +3,7 @@ import Database from 'better-sqlite3';
 import { buildBundle } from '../okf-core/bundle';
 import type { RawFile } from '../okf-core/types';
 import { buildIndex } from './build';
-import { getConcept, listConcepts, searchConcepts, backlinks, graphNeighborhood } from './queries';
+import { getConcept, listConcepts, searchConcepts, backlinks, graphNeighborhood, graphAll } from './queries';
 
 const FILES: RawFile[] = [
   { path: 'tables/orders.md', content: '---\ntype: Table\ntitle: Orders\ntags: [sales]\n---\nOrders link to [c](customers.md).' },
@@ -73,5 +73,18 @@ describe('queries', () => {
     expect(ids).toContain('tables/customers.md');
     expect(ids).toContain('metrics/wau.md');
     expect(g.edges.length).toBeGreaterThan(0);
+  });
+});
+
+describe('graphAll', () => {
+  it('returns all concepts as nodes and all resolved links as edges', () => {
+    const d = db();
+    const g = graphAll(d);
+    expect(g.nodes.map((n) => n.path).sort()).toEqual([
+      'metrics/wau.md', 'tables/customers.md', 'tables/orders.md',
+    ]);
+    // orders -> customers (resolved) and wau -> orders (resolved)
+    expect(g.edges).toContainEqual({ from: 'tables/orders.md', to: 'tables/customers.md' });
+    expect(g.edges).toContainEqual({ from: 'metrics/wau.md', to: 'tables/orders.md' });
   });
 });

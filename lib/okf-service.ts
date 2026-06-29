@@ -9,6 +9,7 @@ import {
   searchConcepts,
   backlinks,
   graphNeighborhood,
+  graphAll,
   type ConceptRow,
   type ConceptSummary,
   type SearchHit,
@@ -21,6 +22,7 @@ export interface OkfService {
   search(query: string): SearchHit[];
   backlinks(path: string): ConceptSummary[];
   graph(path: string, depth?: number): GraphData;
+  fullGraph(): GraphData;
   issues(): ValidationIssue[];
   close(): void;
 }
@@ -37,6 +39,7 @@ export async function createService(dir: string): Promise<OkfService> {
     search: (query) => searchConcepts(db, query),
     backlinks: (path) => backlinks(db, path),
     graph: (path, depth) => graphNeighborhood(db, path, depth),
+    fullGraph: () => graphAll(db),
     issues: () => bundle.issues,
     close: () => db.close(),
   };

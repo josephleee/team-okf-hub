@@ -16,6 +16,9 @@ describe('createService (on the example bundle)', () => {
       );
       expect(svc.graph('tables/orders.md', 1).nodes.length).toBeGreaterThan(1);
       expect(svc.issues().filter((i) => i.severity === 'error')).toEqual([]);
+      const fg = svc.fullGraph();
+      expect(fg.nodes.length).toBe(5);
+      expect(fg.edges.length).toBeGreaterThan(0);
     } finally {
       svc.close();
     }

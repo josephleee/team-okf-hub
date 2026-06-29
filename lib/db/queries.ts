@@ -130,3 +130,11 @@ export function graphNeighborhood(db: DB, path: string, depth = 1): GraphData {
 
   return { nodes, edges: uniqueEdges };
 }
+
+export function graphAll(db: DB): GraphData {
+  const nodes = db.prepare('SELECT path, type, title FROM concepts ORDER BY path').all() as ConceptSummary[];
+  const rows = db
+    .prepare('SELECT DISTINCT src_path, dst_path FROM links WHERE resolved = 1 AND dst_path IS NOT NULL')
+    .all() as { src_path: string; dst_path: string }[];
+  return { nodes, edges: rows.map((r) => ({ from: r.src_path, to: r.dst_path })) };
+}
