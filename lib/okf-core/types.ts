@@ -15,3 +15,12 @@ export interface Concept {
   body: string;
   parseError?: string;
 }
+
+export type Severity = 'error' | 'warning';
+
+export interface ValidationIssue {
+  path: string;
+  severity: Severity;
+  field?: string;
+  message: string;
+}
