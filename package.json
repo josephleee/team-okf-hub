@@ -11,6 +11,7 @@
     "okf": "tsx scripts/okf.ts"
   },
   "dependencies": {
+    "better-sqlite3": "^11.10.0",
     "gray-matter": "^4.0.3",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",
@@ -20,6 +21,7 @@
     "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/mdast": "^4.0.4",
     "@types/node": "^20.14.0",
     "tsx": "^4.19.0",
