@@ -221,3 +221,15 @@ a { color: var(--okf-primary); text-decoration: none; }
   .okf-concept { flex-direction: column; }
   .okf-concept__rail { width: 100%; border-left: none; border-top: 1px solid var(--okf-border); }
 }
+
+/* ---- Concept editor ---- */
+.okf-editor { display: flex; gap: 20px; max-width: 1060px; margin: 0 auto; width: 100%; padding: 22px 34px 50px; }
+.okf-editor__area { flex: 1; min-width: 0; min-height: 460px; resize: vertical; padding: 14px 16px; border: 1px solid var(--okf-border); border-radius: var(--okf-radius); background: var(--okf-card); color: var(--okf-ink); font: 13px/1.6 var(--okf-font-mono); }
+.okf-editor__area:focus { outline: none; border-color: var(--okf-primary); box-shadow: var(--okf-focus-ring); }
+.okf-editor__side { width: 320px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.okf-editor__saved { font: 400 12px var(--okf-font-mono); color: var(--okf-primary); margin: 0; }
+.okf-issues { display: flex; flex-direction: column; gap: 6px; }
+.okf-issue { font: 400 12px var(--okf-font-mono); padding: 5px 9px; border-radius: var(--okf-radius-sm); border: 1px solid var(--okf-border); }
+.okf-issue.error { color: #b4232a; border-color: #f0c4c6; background: #fdf3f3; }
+.okf-issue.warning { color: #8a6312; border-color: #efe0bd; background: #fdfaf2; }
+.okf-editor__preview { border: 1px dashed var(--okf-border); border-radius: var(--okf-radius); padding: 12px 14px; max-height: 320px; overflow: auto; }
