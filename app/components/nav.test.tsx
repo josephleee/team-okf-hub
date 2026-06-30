@@ -10,5 +10,6 @@ describe('Nav', () => {
     render(<Nav />);
     expect(screen.getByRole('link', { name: /OKF Hub/i }).getAttribute('href')).toBe('/');
     expect(screen.getByRole('searchbox', { name: /search/i })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /new/i }).getAttribute('href')).toBe('/concept/new');
   });
 });

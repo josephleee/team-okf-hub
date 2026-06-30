@@ -88,6 +88,19 @@ npm run dev          # http://localhost:3000
 Pages: `/` (browse by type) · `/concept/<path>` (rendered concept + backlinks) ·
 `/search?q=` (full-text search) · `/graph` (interactive concept graph).
 
+## Editing (M2a)
+
+OKF Hub can edit concepts in the browser:
+
+- Open a concept → **edit**, or **+ new** in the nav to create one.
+- The editor validates live (the only required field is `type`) and shows a sanitized preview.
+- **Save** writes the `.md` file in your bundle directory and re-indexes. **Commit with git** to persist:
+  ```bash
+  cd $OKF_BUNDLE_DIR && git add -A && git commit -m "edit via OKF Hub"
+  ```
+
+> Editing writes to your local bundle on disk. GitHub sign-in and automatic pull-request creation are a later milestone (M2b).
+
 ## Tech stack
 
 Next.js (App Router) · TypeScript · SQLite (FTS5) · GitHub OAuth (Auth.js) ·
