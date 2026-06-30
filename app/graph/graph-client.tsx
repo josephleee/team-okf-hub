@@ -23,14 +23,17 @@ export function GraphClient({ nodes, edges }: GraphView) {
           style: {
             shape: 'roundrectangle',
             'background-color': '#ffffff',
-            'border-width': 2.5,
+            'border-width': 2,
             'border-color': 'data(color)',
+            // cytoscape accepts a numeric size at runtime; its TS type wants a string
+            width: 20 as unknown as string,
+            height: 20 as unknown as string,
             label: 'data(label)',
             'text-valign': 'bottom',
             'text-halign': 'center',
             'text-margin-y': 7,
             'font-family': 'Geist, system-ui, sans-serif',
-            'font-size': 12,
+            'font-size': 11,
             'font-weight': 600,
             color: '#0f2747',
             'text-background-color': '#ffffff',
@@ -57,6 +60,14 @@ export function GraphClient({ nodes, edges }: GraphView) {
       ],
     });
     cy.on('tap', 'node', (evt) => router.push(`/concept/${evt.target.id()}`));
+    // Small graphs over-magnify when auto-fit; cap the initial zoom so nodes
+    // render close to their true size.
+    cy.one('layoutstop', () => {
+      if (cy.zoom() > 1.1) {
+        cy.zoom(1.1);
+        cy.center();
+      }
+    });
     return () => cy.destroy();
   }, [nodes, edges, router]);
 
