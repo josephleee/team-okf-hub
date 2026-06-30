@@ -12,5 +12,5 @@ export default async function ConceptPage({ params }: { params: Promise<{ path: 
   const svc = await getService();
   const view = conceptView(svc, conceptPath);
   if (!view) notFound();
-  return <main><ConceptDetail view={view} back={<BackButton />} /></main>;
+  return <main><ConceptDetail view={view} back={<BackButton />} editHref={`/concept/${conceptPath}/edit`} /></main>;
 }

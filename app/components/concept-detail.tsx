@@ -24,13 +24,14 @@ function RailLinks({ label, items }: { label: string; items: { path: string; tit
   );
 }
 
-export function ConceptDetail({ view, back }: { view: ConceptView; back?: ReactNode }) {
+export function ConceptDetail({ view, back, editHref }: { view: ConceptView; back?: ReactNode; editHref?: string }) {
   return (
     <article className="okf-concept okf-screen">
       <div className="okf-concept__body">
         {back}
         <div className="okf-breadcrumb">
           <Link href="/">concepts</Link> / {view.title}
+          {editHref && <> · <Link href={editHref}>edit</Link></>}
         </div>
         <div className="okf-badge" style={colorVar(view.type)}>
           <span className="okf-typedot" style={colorVar(view.type)} aria-hidden="true" />
