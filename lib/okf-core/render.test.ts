@@ -17,3 +17,17 @@ describe('renderMarkdown', () => {
     expect(renderMarkdown('').trim()).toBe('');
   });
 });
+
+describe('renderMarkdown sanitization', () => {
+  it('strips javascript: link URLs but keeps the link text', () => {
+    const html = renderMarkdown('[click](javascript:alert(1))');
+    expect(html).not.toContain('javascript:');
+    expect(html).toContain('click');
+  });
+
+  it('keeps GFM tables and code after sanitizing', () => {
+    const html = renderMarkdown('| a | b |\n|---|---|\n| 1 | `x` |');
+    expect(html).toContain('<table>');
+    expect(html).toContain('<code>x</code>');
+  });
+});
