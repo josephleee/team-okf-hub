@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { join } from 'node:path';
 import { createService } from '../../lib/okf-service';
-import { homeView, conceptView, searchView, graphView } from './data';
+import { homeView, conceptView, searchView, graphView, escapeSnippet } from './data';
 
 const svc = await createService(join(process.cwd(), 'bundles/example'));
 afterAll(() => svc.close());
@@ -48,5 +48,12 @@ describe('view models', () => {
     expect(g.nodes.length).toBe(5);
     expect(g.edges.length).toBeGreaterThan(0);
     expect(g.nodes[0]).toHaveProperty('title');
+  });
+});
+
+describe('escapeSnippet', () => {
+  it('escapes HTML in snippet text but turns the sentinel markers into <mark>', () => {
+    const raw = 'a <b> \x02hit\x03 & c';
+    expect(escapeSnippet(raw)).toBe('a &lt;b&gt; <mark>hit</mark> &amp; c');
   });
 });

@@ -1,4 +1,14 @@
 import type { OkfService } from '../../lib/okf-service';
+import { SNIPPET_OPEN, SNIPPET_CLOSE } from '../../lib/db/queries';
+
+export function escapeSnippet(raw: string): string {
+  return raw
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .split(SNIPPET_OPEN).join('<mark>')
+    .split(SNIPPET_CLOSE).join('</mark>');
+}
 
 const titleOf = (path: string, title: string | null): string => title ?? path;
 
@@ -77,7 +87,7 @@ export function searchView(svc: OkfService, query: string): SearchView {
     path: h.path,
     title: titleOf(h.path, h.title),
     type: h.type,
-    snippet: h.snippet,
+    snippet: escapeSnippet(h.snippet),
   }));
   return { query, hits };
 }

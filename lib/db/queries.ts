@@ -1,5 +1,8 @@
 import type { DB } from './schema';
 
+export const SNIPPET_OPEN = '\x02';
+export const SNIPPET_CLOSE = '\x03';
+
 export interface ConceptRow {
   path: string;
   type: string;
@@ -66,7 +69,7 @@ export function searchConcepts(db: DB, query: string): SearchHit[] {
   return db
     .prepare(
       `SELECT c.path, c.type, c.title,
-              snippet(concepts_fts, 3, '<mark>', '</mark>', '…', 12) AS snippet
+              snippet(concepts_fts, 3, char(2), char(3), '…', 12) AS snippet
        FROM concepts_fts
        JOIN concepts c ON c.path = concepts_fts.path
        WHERE concepts_fts MATCH ?
