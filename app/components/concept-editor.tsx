@@ -27,6 +27,7 @@ export function ConceptEditor({
   const [html, setHtml] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState('');
+  const [saveError, setSaveError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -46,13 +47,19 @@ export function ConceptEditor({
   async function handleSave() {
     setSaving(true);
     setSaved('');
-    const res = await onSave(path, content);
-    setSaving(false);
-    if (res.ok) {
-      setSaved('Saved ✓ — commit with git to persist.');
-      router.refresh();
-    } else {
-      setIssues(res.issues);
+    setSaveError('');
+    try {
+      const res = await onSave(path, content);
+      if (res.ok) {
+        setSaved('Saved ✓ — commit with git to persist.');
+        router.refresh();
+      } else {
+        setIssues(res.issues);
+      }
+    } catch (err) {
+      setSaveError(`Save failed: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -70,6 +77,7 @@ export function ConceptEditor({
           {saving ? 'Saving…' : 'Save'}
         </button>
         {saved && <p className="okf-editor__saved">{saved}</p>}
+        {saveError && <div className="okf-issue error">{saveError}</div>}
         <IssueList issues={issues} />
         {html && <div className="okf-editor__preview okf-prose" dangerouslySetInnerHTML={{ __html: html }} />}
       </div>

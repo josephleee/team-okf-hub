@@ -34,4 +34,13 @@ describe('ConceptEditor', () => {
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
     await waitFor(() => expect(onSave).toHaveBeenCalledWith('x.md', 'edited'));
   });
+
+  it('recovers and shows an error when save rejects (button not stuck)', async () => {
+    const onSave = vi.fn(async () => { throw new Error('not a markdown file'); });
+    render(<ConceptEditor path="x.md" initialContent="hi" onValidate={okValidate} onSave={onSave} />);
+    await waitFor(() => expect((screen.getByRole('button', { name: /save/i }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    await waitFor(() => expect(screen.getByText(/save failed/i)).toBeTruthy());
+    expect((screen.getByRole('button', { name: /save/i }) as HTMLButtonElement).disabled).toBe(false);
+  });
 });
