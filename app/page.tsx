@@ -18,7 +18,7 @@ export default async function HomePage() {
       <section className="okf-graphcard">
         <div className="okf-graph__header">
           <span className="okf-graph__title">Graph</span>
-          <span className="okf-graph__meta">nodes:{graph.nodes.length} · edges:{graph.edges.length} · layout:cose</span>
+          <span className="okf-graph__meta">nodes:{graph.nodes.length} · edges:{graph.edges.length} · layout:circle</span>
         </div>
         <GraphPanel view={graph} />
       </section>

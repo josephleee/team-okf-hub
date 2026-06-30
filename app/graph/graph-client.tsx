@@ -14,9 +14,11 @@ export function GraphClient({ nodes, edges }: GraphView) {
     const cy = cytoscape({
       container: ref.current,
       elements: toCytoscapeElements({ nodes, edges }),
-      layout: { name: 'cose', padding: 50 },
+      // Deterministic circle layout: even spacing so the wide pill labels never
+      // overlap, and the same framing on every refresh.
+      layout: { name: 'circle', animate: false, padding: 40, radius: 170 },
       minZoom: 0.4,
-      maxZoom: 2.5,
+      maxZoom: 1.2, // cap the auto-fit so the graph frames small (not magnified); raised after layout
       style: [
         {
           selector: 'node',
@@ -60,14 +62,9 @@ export function GraphClient({ nodes, edges }: GraphView) {
       ],
     });
     cy.on('tap', 'node', (evt) => router.push(`/concept/${evt.target.id()}`));
-    // Small graphs over-magnify when auto-fit; cap the initial zoom so nodes
-    // render close to their true size.
-    cy.one('layoutstop', () => {
-      if (cy.zoom() > 1.1) {
-        cy.zoom(1.1);
-        cy.center();
-      }
-    });
+    // The layout (animate:false) fits + centers within maxZoom:1, so the first
+    // paint is already small — no magnified flash. Restore interactive zoom after.
+    cy.one('layoutstop', () => cy.maxZoom(2.5));
     return () => cy.destroy();
   }, [nodes, edges, router]);
 

@@ -11,7 +11,7 @@ export default async function GraphPage() {
     <main className="okf-graph okf-screen">
       <div className="okf-graph__header">
         <span className="okf-graph__title">Graph</span>
-        <span className="okf-graph__meta">nodes:{view.nodes.length} · edges:{view.edges.length} · layout:cose</span>
+        <span className="okf-graph__meta">nodes:{view.nodes.length} · edges:{view.edges.length} · layout:circle</span>
       </div>
       <GraphPanel view={view} />
     </main>
