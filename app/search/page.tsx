@@ -1,6 +1,5 @@
 import { getService } from '../lib/service';
 import { searchView } from '../lib/data';
-import { SearchForm } from '../components/search-form';
 import { SearchResults } from '../components/search-results';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +11,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const view = searchView(svc, q);
   return (
     <main className="okf-search okf-screen">
-      <SearchForm defaultQuery={q} />
       <SearchResults view={view} />
     </main>
   );

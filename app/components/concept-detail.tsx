@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { ConceptView } from '../lib/data';
 import { typeColor } from '../lib/type-color';
 
@@ -24,10 +24,11 @@ function RailLinks({ label, items }: { label: string; items: { path: string; tit
   );
 }
 
-export function ConceptDetail({ view }: { view: ConceptView }) {
+export function ConceptDetail({ view, back }: { view: ConceptView; back?: ReactNode }) {
   return (
     <article className="okf-concept okf-screen">
       <div className="okf-concept__body">
+        {back}
         <div className="okf-breadcrumb">
           <Link href="/">concepts</Link> / {view.title}
         </div>

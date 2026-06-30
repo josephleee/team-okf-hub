@@ -1,12 +1,8 @@
-import type { CSSProperties } from 'react';
 import { getService } from '../lib/service';
 import { graphView } from '../lib/data';
-import { typeColor } from '../lib/type-color';
-import { GraphClient } from './graph-client';
+import { GraphPanel } from '../components/graph-panel';
 
 export const dynamic = 'force-dynamic';
-
-const LEGEND = ['Table', 'Dataset', 'Metric', 'Index'];
 
 export default async function GraphPage() {
   const svc = await getService();
@@ -17,18 +13,7 @@ export default async function GraphPage() {
         <span className="okf-graph__title">Graph</span>
         <span className="okf-graph__meta">nodes:{view.nodes.length} · edges:{view.edges.length} · layout:cose</span>
       </div>
-      <div className="okf-graph__stage">
-        <GraphClient nodes={view.nodes} edges={view.edges} />
-        <div className="okf-legend">
-          {LEGEND.map((label) => (
-            <div className="okf-legend__row" key={label}>
-              <span className="okf-legend__sw" style={{ '--okf-c': typeColor(label) } as CSSProperties} />
-              {label}
-            </div>
-          ))}
-        </div>
-        <div className="okf-graph__hint">click node → open concept</div>
-      </div>
+      <GraphPanel view={view} />
     </main>
   );
 }

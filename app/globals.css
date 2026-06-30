@@ -201,6 +201,21 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-legend__sw { width: 9px; height: 9px; border: 2px solid var(--okf-c, var(--okf-primary)); }
 .okf-graph__hint { position: absolute; right: 16px; bottom: 16px; font: 400 11px var(--okf-font-mono); color: var(--okf-faint); }
 
+/* ---- Nav search field ---- */
+.okf-nav__search { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; width: 320px; max-width: 44vw; border: 1px solid var(--okf-border); border-radius: var(--okf-radius); background: var(--okf-card); }
+.okf-nav__search:focus-within { border-color: var(--okf-primary); box-shadow: var(--okf-focus-ring); }
+.okf-nav__search input { flex: 1; min-width: 0; border: none; outline: none; background: none; font: 400 13px var(--okf-font-sans); color: var(--okf-ink); }
+.okf-nav__search input::placeholder { color: var(--okf-faint); }
+
+/* ---- Back button (concept) ---- */
+.okf-back { display: inline-flex; align-items: center; gap: 7px; font: 500 12px var(--okf-font-sans); color: var(--okf-primary); border: 1px solid var(--okf-border); border-radius: var(--okf-radius); padding: 6px 12px; background: var(--okf-card); cursor: pointer; margin-bottom: 14px; }
+.okf-back:hover { border-color: var(--okf-primary); background: var(--okf-card-raised); }
+
+/* ---- Home graph card ---- */
+.okf-graphcard { border: 1px solid var(--okf-primary); border-radius: var(--okf-radius); background: var(--okf-card); margin: 0 0 30px; overflow: hidden; }
+.okf-graphcard .okf-graph__header { border-bottom: 1px solid var(--okf-border); }
+.okf-graphcard .okf-graph__stage { flex: none; min-height: 0; height: 420px; }
+
 /* ---- Responsive ---- */
 @media (max-width: 720px) {
   .okf-concept { flex-direction: column; }

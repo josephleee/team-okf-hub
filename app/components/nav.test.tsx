@@ -6,10 +6,9 @@ import { Nav } from './nav';
 afterEach(cleanup);
 
 describe('Nav', () => {
-  it('renders links to home, search, and graph', () => {
+  it('renders the brand link to home and a search box', () => {
     render(<Nav />);
-    expect(screen.getByRole('link', { name: /OKF Hub/i })).toHaveProperty('href');
-    expect(screen.getByRole('link', { name: /search/i }).getAttribute('href')).toBe('/search');
-    expect(screen.getByRole('link', { name: /graph/i }).getAttribute('href')).toBe('/graph');
+    expect(screen.getByRole('link', { name: /OKF Hub/i }).getAttribute('href')).toBe('/');
+    expect(screen.getByRole('searchbox', { name: /search/i })).toBeTruthy();
   });
 });

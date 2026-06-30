@@ -28,7 +28,7 @@ export function SearchResults({ view }: { view: SearchView }) {
 
   return (
     <>
-      <div className="okf-resultcount">// {view.hits.length} results · ranked bm25</div>
+      <div className="okf-resultcount">// {view.hits.length} results for &ldquo;{query}&rdquo; · ranked bm25</div>
       <div className="okf-results">
         {view.hits.map((h) => (
           <Link

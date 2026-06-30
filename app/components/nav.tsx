@@ -7,10 +7,10 @@ export function Nav() {
         <span className="okf-logo" aria-hidden="true" />
         OKF Hub
       </Link>
-      <div className="okf-nav__links">
-        <Link href="/graph" className="okf-nav__link">graph</Link>
-        <Link href="/search" className="okf-nav__link">search</Link>
-      </div>
+      <form className="okf-nav__search" action="/search" method="get" role="search">
+        <span className="okf-searchfield__icon" aria-hidden="true">⌕</span>
+        <input type="search" name="q" placeholder="Search concepts…" aria-label="Search" />
+      </form>
     </nav>
   );
 }
