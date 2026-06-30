@@ -28,8 +28,8 @@ export interface ConceptView {
   tags: string[];
   timestamp: string | null;
   html: string;
-  outbound: { path: string; title: string }[];
-  backlinks: { path: string; title: string }[];
+  outbound: { path: string; title: string; type: string }[];
+  backlinks: { path: string; title: string; type: string }[];
 }
 
 export function conceptView(svc: OkfService, path: string): ConceptView | null {
@@ -46,11 +46,12 @@ export function conceptView(svc: OkfService, path: string): ConceptView | null {
 
   const neighborhood = svc.graph(path, 1);
   const titleByPath = new Map(neighborhood.nodes.map((n) => [n.path, titleOf(n.path, n.title)]));
+  const typeByPath = new Map(neighborhood.nodes.map((n) => [n.path, n.type]));
   const outbound = neighborhood.edges
     .filter((e) => e.from === path)
-    .map((e) => ({ path: e.to, title: titleByPath.get(e.to) ?? e.to }));
+    .map((e) => ({ path: e.to, title: titleByPath.get(e.to) ?? e.to, type: typeByPath.get(e.to) ?? '' }));
 
-  const backlinks = svc.backlinks(path).map((b) => ({ path: b.path, title: titleOf(b.path, b.title) }));
+  const backlinks = svc.backlinks(path).map((b) => ({ path: b.path, title: titleOf(b.path, b.title), type: b.type }));
 
   return {
     path: row.path,
@@ -68,13 +69,14 @@ export function conceptView(svc: OkfService, path: string): ConceptView | null {
 
 export interface SearchView {
   query: string;
-  hits: { path: string; title: string; snippet: string }[];
+  hits: { path: string; title: string; type: string; snippet: string }[];
 }
 
 export function searchView(svc: OkfService, query: string): SearchView {
   const hits = svc.search(query).map((h) => ({
     path: h.path,
     title: titleOf(h.path, h.title),
+    type: h.type,
     snippet: h.snippet,
   }));
   return { query, hits };

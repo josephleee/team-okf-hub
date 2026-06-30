@@ -11,8 +11,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const svc = await getService();
   const view = searchView(svc, q);
   return (
-    <main>
-      <h1>Search</h1>
+    <main className="okf-search okf-screen">
       <SearchForm defaultQuery={q} />
       <SearchResults view={view} />
     </main>

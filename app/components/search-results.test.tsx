@@ -8,7 +8,7 @@ afterEach(cleanup);
 describe('SearchResults', () => {
   it('lists hits with links when there are results', () => {
     render(<SearchResults view={{ query: 'orders', hits: [
-      { path: 'tables/orders.md', title: 'Orders', snippet: '…<mark>orders</mark>…' },
+      { path: 'tables/orders.md', title: 'Orders', type: 'BigQuery Table', snippet: '…<mark>orders</mark>…' },
     ] }} />);
     expect(screen.getByRole('link', { name: /Orders/ }).getAttribute('href')).toBe('/concept/tables/orders.md');
   });

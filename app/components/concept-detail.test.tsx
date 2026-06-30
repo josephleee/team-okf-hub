@@ -11,8 +11,8 @@ const view: ConceptView = {
   description: 'One row per order.', resource: 'https://example.com/orders',
   tags: ['sales', 'revenue'], timestamp: '2026-05-28T14:30:00Z',
   html: '<h1>Schema</h1><table><tr><td>x</td></tr></table>',
-  outbound: [{ path: 'tables/customers.md', title: 'Customers' }],
-  backlinks: [{ path: 'metrics/wau.md', title: 'WAU' }],
+  outbound: [{ path: 'tables/customers.md', title: 'Customers', type: 'BigQuery Table' }],
+  backlinks: [{ path: 'metrics/wau.md', title: 'WAU', type: 'Metric' }],
 };
 
 describe('ConceptDetail', () => {

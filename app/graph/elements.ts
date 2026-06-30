@@ -1,9 +1,10 @@
 import type { ElementDefinition } from 'cytoscape';
 import type { GraphView } from '../lib/data';
+import { typeColor } from '../lib/type-color';
 
 export function toCytoscapeElements(view: GraphView): ElementDefinition[] {
   const nodes: ElementDefinition[] = view.nodes.map((n) => ({
-    data: { id: n.path, label: n.title, type: n.type },
+    data: { id: n.path, label: n.title, type: n.type, color: typeColor(n.type) },
   }));
   const edges: ElementDefinition[] = view.edges.map((e) => ({
     data: { id: `${e.from}->${e.to}`, source: e.from, target: e.to },
