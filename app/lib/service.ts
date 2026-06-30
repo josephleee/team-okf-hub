@@ -9,3 +9,11 @@ export function getService(): Promise<OkfService> {
   }
   return cache.__okfService;
 }
+
+export function resetService(): void {
+  const previous = cache.__okfService;
+  cache.__okfService = undefined;
+  if (previous) {
+    previous.then((svc) => svc.close()).catch(() => {});
+  }
+}
