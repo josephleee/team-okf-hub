@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import { readConceptSource } from '../../../../lib/bundle-io';
-import { ConceptEditor } from '../../../components/concept-editor';
-import { validateAction, saveAction } from '../../../lib/actions';
+import { readConceptSource } from '../../../lib/bundle-io';
+import { ConceptEditor } from '../../components/concept-editor';
+import { validateAction, saveAction } from '../../lib/actions';
 
 export const dynamic = 'force-dynamic';
 
