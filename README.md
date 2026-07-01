@@ -42,6 +42,38 @@ breaking the format, and feed them to the AI agents that increasingly need that
 context. OKF Hub adds that team layer **without giving up the git-native,
 portable nature of OKF.**
 
+## OKF vs. agent memory
+
+As AI agents proliferate, a natural question is: why not just let each agent
+*remember* the organization's knowledge in its own memory? The two serve
+fundamentally different roles, and for **organizational knowledge shared across
+multiple agents, OKF is the right layer** — not per-agent memory.
+
+- **Agent memory** is private, self-authored, and unverified — it captures an
+  agent's own working context and preferences ("this user commits with their
+  personal identity"). Low friction to write, but not something other agents
+  should trust as fact.
+- **OKF** is shared, human-curated, and validated — one canonical source of
+  truth that every agent, session, and teammate reads the same way, through a
+  uniform interface (MCP `okf_search` / `okf_get` / `okf_list` / `okf_graph`).
+
+The distinction matters most for multi-agent setups:
+
+| Concern | Agent memory | OKF (via OKF Hub) |
+|---|---|---|
+| **Consistency** | Each agent may remember facts differently | One canonical definition for all |
+| **Trust** | "probably right" | validated + PR-reviewed before it becomes canon |
+| **Audit** | none | git history — who changed what, when, why |
+| **Scope** | private to one agent/session | shared across the whole team |
+| **Access** | ad-hoc, per-agent format | uniform MCP / REST interface |
+
+Crucially, **agents don't write to OKF directly** — that would erode the very
+guarantee (validated canon) that makes it trustworthy. Instead they propose
+changes through the same **edit → PR** flow humans use, and a review gate decides
+what becomes canon. Rule of thumb: an organization's *"what is true"* belongs in
+OKF (shared, versioned, reviewed); an agent's *"what I'm working on / what this
+user prefers"* stays in memory (private, low-friction).
+
 ## Planned features (v1)
 
 - 📖 **Browse & render** — read concepts with metadata, backlinks, and outbound links.
