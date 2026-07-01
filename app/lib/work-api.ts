@@ -2,10 +2,11 @@ import 'server-only';
 import { getService, resetService } from './service';
 import { buildWorkRecordSource, type WorkRecordInput } from '../../lib/work-record';
 import { saveContent } from '../../lib/edit-ops';
+import { resolveBundleDir } from '../../lib/config';
 import type { ValidationIssue } from '../../lib/okf-core/types';
 import type { WorkRow, SearchHit, ConceptRow, GraphData } from '../../lib/db/queries';
 
-const bundleDir = () => process.env.OKF_BUNDLE_DIR ?? 'bundles/example';
+const bundleDir = () => resolveBundleDir();
 
 async function knownPaths(): Promise<Set<string>> {
   const svc = await getService();

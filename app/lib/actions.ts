@@ -1,9 +1,10 @@
 'use server';
 import { getService, resetService } from './service';
 import { validateContent, saveContent } from '../../lib/edit-ops';
+import { resolveBundleDir } from '../../lib/config';
 import type { ValidationIssue } from '../../lib/okf-core/types';
 
-const bundleDir = () => process.env.OKF_BUNDLE_DIR ?? 'bundles/example';
+const bundleDir = () => resolveBundleDir();
 
 async function knownPaths(): Promise<Set<string>> {
   const svc = await getService();
