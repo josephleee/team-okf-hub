@@ -2,6 +2,7 @@ import { setupState, readConfig } from '../../lib/config';
 import { isAdmin } from '../lib/admin-session';
 import { completeSetup, adminLogin, rotateToken, renameWorkspace, changeBundle } from '../lib/setup-actions';
 import { SetupWizard } from '../components/setup-wizard';
+import { RotateTokenPanel } from '../components/rotate-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,10 +48,7 @@ export default async function SetupPage() {
         <label>Workspace name <input name="name" defaultValue={cfg?.workspaceName} /></label>
         <button type="submit">Rename</button>
       </form>
-      <form className="okf-setup__row" action={async () => { 'use server'; await rotateToken(); }}>
-        <p>Rotate the ingestion token (the old token stops working immediately).</p>
-        <button type="submit">Rotate token</button>
-      </form>
+      <RotateTokenPanel onRotate={rotateToken} />
       <form className="okf-setup__row" action={async (fd: FormData) => { 'use server'; await changeBundle({ source: String(fd.get('source') ?? 'example') as 'example' | 'local' | 'git', localPath: String(fd.get('localPath') ?? ''), gitUrl: String(fd.get('gitUrl') ?? '') }); }}>
         <label>Bundle source
           <select name="source" defaultValue={cfg?.bundle.source}>
