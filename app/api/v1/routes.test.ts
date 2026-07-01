@@ -73,3 +73,23 @@ describe('GET /api/v1/search + /concept', () => {
     expect((await GET(new Request('http://t/api/v1/concept?path=nope.md'))).status).toBe(404);
   });
 });
+
+describe('GET /api/v1/graph', () => {
+  it('400 when path param is missing', async () => {
+    const { GET } = await import('./graph/route');
+    const res = await GET(new Request('http://t/api/v1/graph'));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBeTruthy();
+  });
+
+  it('200 with graph.nodes and graph.edges arrays for a seeded concept', async () => {
+    const { GET } = await import('./graph/route');
+    const res = await GET(new Request('http://t/api/v1/graph?path=index.md'));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.graph).toBeDefined();
+    expect(Array.isArray(body.graph.nodes)).toBe(true);
+    expect(Array.isArray(body.graph.edges)).toBe(true);
+  });
+});

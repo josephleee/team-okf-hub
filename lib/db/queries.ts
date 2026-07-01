@@ -166,7 +166,7 @@ export function recentWork(
     clauses.push("json_extract(frontmatter_json, '$.actor') = ?");
     params.push(filter.actor);
   }
-  const limit = filter.limit ?? 50;
+  const limit = Number.isFinite(filter.limit) ? Math.min(Math.max(1, filter.limit as number), 500) : 50;
   const rows = db
     .prepare(
       `SELECT path, title, timestamp, frontmatter_json

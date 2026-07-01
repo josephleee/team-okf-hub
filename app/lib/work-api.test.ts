@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { mkdtempSync, writeFileSync, existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -38,5 +38,20 @@ describe('work-api', () => {
     expect(res.ok).toBe(false);
     expect(res.issues.some((i) => i.severity === 'error')).toBe(true);
     expect(res.path).toBe('');
+  });
+
+  it('returns ok:false with an error-severity issue when saveContent throws', async () => {
+    const editOps = await import('../../lib/edit-ops');
+    const spy = vi.spyOn(editOps, 'saveContent').mockRejectedValueOnce(new Error('path-safety violation'));
+    try {
+      const { recordWork } = await import('./work-api');
+      const res = await recordWork({ title: 'Test throw', summary: 'summary', actor: 'agent' });
+      expect(res.ok).toBe(false);
+      expect(res.path).toBe('');
+      expect(res.issues.some((i) => i.severity === 'error' && i.field === 'write')).toBe(true);
+      expect(res.issues[0]!.message).toContain('path-safety violation');
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

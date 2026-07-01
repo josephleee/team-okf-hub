@@ -27,8 +27,17 @@ export async function recordWork(
   }
   const now = new Date().toISOString();
   const { path, content } = buildWorkRecordSource(input, now);
-  const result = await saveContent(bundleDir(), path, content, await knownPaths());
-  if (result.ok) resetService();
+  let result: Awaited<ReturnType<typeof saveContent>>;
+  try {
+    result = await saveContent(bundleDir(), path, content, await knownPaths());
+  } catch (err) {
+    return {
+      ok: false,
+      path: '',
+      issues: [{ path: '', severity: 'error', field: 'write', message: err instanceof Error ? err.message : String(err) }],
+    };
+  }
+  if (result.ok) resetService(); // synchronous — clears the cached singleton before returning; the next getService() rebuilds
   return { ok: result.ok, path: result.ok ? path : '', issues: result.issues };
 }
 

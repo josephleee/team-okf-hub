@@ -71,4 +71,4 @@ async function authed(req: Request): Promise<Response> {
   return handler(req);
 }
 
-export { authed as GET, authed as POST };
+export { authed as GET, authed as POST, authed as DELETE };

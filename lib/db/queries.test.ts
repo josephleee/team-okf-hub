@@ -140,4 +140,20 @@ describe('recentWork', () => {
     expect(recentWork(db, { limit: 1 }).map((r) => r.title)).toEqual(['Third']);
     db.close();
   });
+
+  it('clamps negative limit to 1', () => {
+    const db = seed();
+    const rows = recentWork(db, { limit: -5 });
+    expect(rows.length).toBeLessThanOrEqual(1);
+    expect(rows.length).toBeGreaterThanOrEqual(1);
+    db.close();
+  });
+
+  it('clamps oversized limit to 500 (returns all 3 seeded rows)', () => {
+    const db = seed();
+    const rows = recentWork(db, { limit: 9999 });
+    expect(rows.length).toBe(3);
+    expect(rows.length).toBeLessThanOrEqual(500);
+    db.close();
+  });
 });

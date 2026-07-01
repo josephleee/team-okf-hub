@@ -54,4 +54,34 @@ describe('buildWorkRecordSource', () => {
     expect(data.tags).toEqual([]);
     expect(data.artifacts).toEqual([]);
   });
+
+  it('falls back to now for a hostile timestamp (path traversal attempt)', () => {
+    const { path, content } = buildWorkRecordSource(
+      { ...base, timestamp: '../../../../etc/passwd' },
+      now,
+    );
+    expect(path.startsWith('work/general/')).toBe(true);
+    expect(path.includes('..')).toBe(false);
+    expect(matter(content).data.timestamp).toBe(now);
+  });
+
+  it('falls back to now for a timestamp with embedded slashes', () => {
+    const { path, content } = buildWorkRecordSource(
+      { ...base, timestamp: '2026-07-01/x/y' },
+      now,
+    );
+    expect(path.startsWith('work/general/')).toBe(true);
+    expect(path.includes('..')).toBe(false);
+    expect(matter(content).data.timestamp).toBe(now);
+  });
+
+  it('preserves a valid ISO timestamp unchanged', () => {
+    const validTs = '2025-12-31T23:59:59Z';
+    const { path, content } = buildWorkRecordSource(
+      { ...base, timestamp: validTs },
+      now,
+    );
+    expect(path).toBe('work/general/2025-12-31-235959-add-sanitize.md');
+    expect(matter(content).data.timestamp).toBe(validTs);
+  });
 });

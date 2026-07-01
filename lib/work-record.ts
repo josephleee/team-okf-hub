@@ -21,11 +21,18 @@ export function slugify(s: string): string {
     .replace(/-+$/, '');
 }
 
+function isoOrNow(candidate: string | undefined, now: string): string {
+  if (candidate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(candidate) && !Number.isNaN(Date.parse(candidate))) {
+    return candidate;
+  }
+  return now;
+}
+
 export function buildWorkRecordSource(
   input: WorkRecordInput,
   now: string,
 ): { path: string; content: string } {
-  const timestamp = input.timestamp ?? now;
+  const timestamp = isoOrNow(input.timestamp, now);
   const project = input.project?.trim() || 'general';
   const projectSlug = slugify(project) || 'general';
   const slug = slugify(input.title) || 'untitled';

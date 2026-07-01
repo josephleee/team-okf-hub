@@ -32,4 +32,30 @@ describe('WorkTimeline', () => {
     render(<WorkTimeline view={{ filter: {}, total: 0, groups: [] }} />);
     expect(screen.getByText(/No work records yet/i)).toBeTruthy();
   });
+
+  it('renders https artifact link but blocks javascript: scheme', () => {
+    const maliciousView: WorkView = {
+      filter: {},
+      total: 1,
+      groups: [
+        {
+          date: '2026-07-01',
+          items: [
+            {
+              path: 'work/p/2026-07-01-120000-ship.md',
+              title: 'Ship it',
+              actor: 'jungsup',
+              project: 'p',
+              timestamp: '2026-07-01T12:00:00Z',
+              tags: [],
+              artifacts: ['https://ok.example/pr/1', 'javascript:alert(1)'],
+            },
+          ],
+        },
+      ],
+    };
+    render(<WorkTimeline view={maliciousView} />);
+    expect(screen.getByRole('link', { name: 'https://ok.example/pr/1' }).getAttribute('href')).toBe('https://ok.example/pr/1');
+    expect(screen.queryByText('javascript:alert(1)')).toBeNull();
+  });
 });

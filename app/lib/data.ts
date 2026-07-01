@@ -147,7 +147,7 @@ export function workView(
     else byDate.set(date, [item]);
   }
   const groups = [...byDate.entries()]
-    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+    .sort((a, b) => (a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0))
     .map(([date, items]) => ({ date, items }));
   return { filter, groups, total: rows.length };
 }

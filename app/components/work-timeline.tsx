@@ -43,13 +43,18 @@ export function WorkTimeline({ view }: { view: WorkView }) {
                       {it.tags.map((t) => <span key={t} className="okf-work-tag">{t}</span>)}
                     </div>
                   ) : null}
-                  {it.artifacts.length > 0 ? (
-                    <ul className="okf-work-artifacts">
-                      {it.artifacts.map((a) => (
-                        <li key={a}><a href={a} target="_blank" rel="noopener noreferrer nofollow">{a}</a></li>
-                      ))}
-                    </ul>
-                  ) : null}
+                  {(() => {
+                    const safeArtifacts = it.artifacts.filter((a) => {
+                      try { const u = new URL(a); return u.protocol === 'http:' || u.protocol === 'https:'; } catch { return false; }
+                    });
+                    return safeArtifacts.length > 0 ? (
+                      <ul className="okf-work-artifacts">
+                        {safeArtifacts.map((a) => (
+                          <li key={a}><a href={a} target="_blank" rel="noopener noreferrer nofollow">{a}</a></li>
+                        ))}
+                      </ul>
+                    ) : null;
+                  })()}
                 </li>
               ))}
             </ul>

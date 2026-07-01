@@ -167,6 +167,14 @@ Tools then available in every session:
 | `okf_get` | fetch one concept/WorkRecord by path |
 | `okf_graph` | graph neighborhood of a concept |
 
+### Security note: reads are open in this MVP
+
+REST and MCP **reads are open** (no auth required) in this MVP. This means the
+entire bundle — all concepts, not just WorkRecords — is world-readable to anyone
+who can reach the server. Run OKF Hub on a trusted network or behind a
+reverse-proxy access control until read authentication is added. **Do not expose
+it publicly assuming reads are protected.**
+
 ### REST mirror
 
 ```bash
