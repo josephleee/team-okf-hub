@@ -133,6 +133,60 @@ OKF Hub can edit concepts in the browser:
 
 > Editing writes to your local bundle on disk. GitHub sign-in and automatic pull-request creation are a later milestone (M2b).
 
+## Org memory (WorkRecords)
+
+OKF Hub doubles as an **org-wide work-record memory for AI agents**: agents record
+completed work as OKF `WorkRecord` concepts and query them back — via **MCP** (primary)
+and a **REST** mirror.
+
+### Configuration
+
+Set a shared ingestion token (required for all writes; if unset, writes are refused
+with HTTP 503):
+
+```bash
+export OKF_INGEST_TOKEN="<a long random string>"
+export OKF_BUNDLE_DIR="/path/to/your/okf-bundle"   # defaults to bundles/example
+npm run dev
+```
+
+### Register the MCP server in Claude Code
+
+```bash
+claude mcp add --transport http okf-hub http://localhost:3000/api/mcp \
+  --header "Authorization: Bearer $OKF_INGEST_TOKEN"
+```
+
+Tools then available in every session:
+
+| Tool | Purpose |
+| --- | --- |
+| `okf_record_work` | record a completed task as a WorkRecord (write) |
+| `okf_recent_work` | list recent WorkRecords (filter by `project`/`actor`) |
+| `okf_search` | full-text search the memory |
+| `okf_get` | fetch one concept/WorkRecord by path |
+| `okf_graph` | graph neighborhood of a concept |
+
+### REST mirror
+
+```bash
+# record work (write — requires the bearer token)
+curl -X POST http://localhost:3000/api/v1/work \
+  -H "Authorization: Bearer $OKF_INGEST_TOKEN" \
+  -H 'content-type: application/json' \
+  -d '{"title":"Add sanitize","summary":"Hardened render path.","actor":"jungsup","project":"team-okf-hub","tags":["security"],"artifacts":["https://github.com/org/repo/pull/12"]}'
+
+# read (open)
+curl 'http://localhost:3000/api/v1/work?project=team-okf-hub'
+curl 'http://localhost:3000/api/v1/search?q=sanitize'
+curl 'http://localhost:3000/api/v1/concept?path=work/team-okf-hub/2026-07-01-142305-add-sanitize.md'
+```
+
+A WorkRecord is a normal OKF concept (`type: WorkRecord`) stored at
+`work/<project>/<YYYY-MM-DD>-<HHMMSS>-<slug>.md`. Bodies are sanitized on render, and
+links in the body (`[orders](tables/orders.md)`) wire work into the knowledge graph.
+Browse recent work at `/work`.
+
 ## Tech stack
 
 Next.js (App Router) · TypeScript · SQLite (FTS5) · GitHub OAuth (Auth.js) ·
