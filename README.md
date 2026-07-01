@@ -174,6 +174,30 @@ export OKF_BUNDLE_DIR="/path/to/your/okf-bundle"   # defaults to bundles/example
 npm run dev
 ```
 
+### Web setup wizard (M4a)
+
+Instead of setting env vars, you can configure a fresh install entirely in the
+browser. On first run, any page redirects to **`/setup`**, a wizard that lets you
+name the workspace, choose a bundle (the example bundle, a local directory, or a
+public `https://` git URL to clone), and set an admin password. Finishing the wizard
+**generates an ingestion token and shows it once** (copy it then — only its hash is
+stored) along with the ready-to-run `claude mcp add …` command.
+
+Settings persist to `${OKF_CONFIG_DIR:-.okf-hub}/config.json` (created `0600`, dir
+`0700`); secrets are stored hashed (token as SHA-256, password via scrypt), never in
+plaintext. Precedence is **env → file → default** per field, so `OKF_INGEST_TOKEN` /
+`OKF_BUNDLE_DIR` always override the file — the env-var flow above keeps working
+unchanged. After setup, revisit **`/setup`** (the **Settings** nav link) to log in
+with the admin password and rename the workspace, change the bundle, or rotate the
+token (which invalidates the old one immediately and shows the new one once).
+
+> **Deploy note (first-run window):** first-run setup is intentionally
+> unauthenticated — there is no admin until the wizard runs (trust-on-first-use).
+> Complete `/setup` **before** exposing a fresh instance on an untrusted network, or
+> pre-seed config via `OKF_INGEST_TOKEN`, so no one can claim the admin password /
+> token first. Bundle cloning refuses loopback/link-local/private hosts, but is only
+> a literal-address guard — keep bundle git URLs to hosts you trust.
+
 ### Register the MCP server in Claude Code
 
 ```bash
