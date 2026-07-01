@@ -10,10 +10,12 @@ import {
   backlinks,
   graphNeighborhood,
   graphAll,
+  recentWork,
   type ConceptRow,
   type ConceptSummary,
   type SearchHit,
   type GraphData,
+  type WorkRow,
 } from './db/queries';
 
 export interface OkfService {
@@ -23,6 +25,7 @@ export interface OkfService {
   backlinks(path: string): ConceptSummary[];
   graph(path: string, depth?: number): GraphData;
   fullGraph(): GraphData;
+  recentWork(filter?: { project?: string; actor?: string; limit?: number }): WorkRow[];
   issues(): ValidationIssue[];
   close(): void;
 }
@@ -40,6 +43,7 @@ export async function createService(dir: string): Promise<OkfService> {
     backlinks: (path) => backlinks(db, path),
     graph: (path, depth) => graphNeighborhood(db, path, depth),
     fullGraph: () => graphAll(db),
+    recentWork: (filter) => recentWork(db, filter),
     issues: () => bundle.issues,
     close: () => db.close(),
   };

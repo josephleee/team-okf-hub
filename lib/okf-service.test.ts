@@ -23,4 +23,14 @@ describe('createService (on the example bundle)', () => {
       svc.close();
     }
   });
+
+  it('exposes recentWork (empty for the example bundle)', async () => {
+    const svc = await createService(EXAMPLE);
+    try {
+      expect(Array.isArray(svc.recentWork())).toBe(true);
+      expect(svc.recentWork()).toHaveLength(0);
+    } finally {
+      svc.close();
+    }
+  });
 });
