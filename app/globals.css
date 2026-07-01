@@ -249,3 +249,16 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-work-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .okf-work-tag { font-size: 0.72rem; padding: 1px 7px; border-radius: 999px; background: var(--okf-chip-bg, #eef2fb); color: var(--okf-ink, #0f2747); }
 .okf-work-artifacts { margin: 0; padding-left: 18px; font-size: 0.8rem; }
+
+/* --- Setup wizard --- */
+.okf-setup { max-width: 560px; display: flex; flex-direction: column; gap: 14px; }
+.okf-setup label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; }
+.okf-setup input[type="text"], .okf-setup input:not([type]), .okf-setup input[type="password"] { padding: 8px 10px; border: 1px solid var(--okf-border, #d7deea); border-radius: 8px; font: inherit; }
+.okf-setup__bundle { border: 1px solid var(--okf-border, #d7deea); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.okf-setup__bundle legend { font-size: 0.8rem; color: var(--okf-muted, #5b6b82); padding: 0 6px; }
+.okf-setup__error { color: #b42318; }
+.okf-setup__warn { color: var(--okf-warn, #9a6a1f); font-weight: 600; }
+.okf-setup__token { background: var(--okf-ink, #0f2747); color: #e7edf7; padding: 12px; border-radius: 8px; word-break: break-all; }
+.okf-setup__row { border-top: 1px dashed var(--okf-border, #d7deea); padding-top: 12px; }
+.okf-setup button { align-self: flex-start; padding: 8px 16px; border-radius: 8px; border: 0; background: var(--okf-accent, #2563eb); color: #fff; font-weight: 600; cursor: pointer; }
+.okf-setup button:disabled { opacity: .6; cursor: default; }

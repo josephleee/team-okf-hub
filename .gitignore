@@ -23,6 +23,7 @@ dist/
 data/
 .okf-cache/
 workspace-repo/
+.okf-hub/
 
 # Logs
 *.log
