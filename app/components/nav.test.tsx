@@ -17,4 +17,9 @@ describe('Nav', () => {
     render(<Nav />);
     expect(screen.getByRole('link', { name: /^Work$/ }).getAttribute('href')).toBe('/work');
   });
+
+  it('links to setup/settings', () => {
+    render(<Nav />);
+    expect(screen.getByRole('link', { name: /settings/i }).getAttribute('href')).toBe('/setup');
+  });
 });

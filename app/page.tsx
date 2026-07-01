@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { setupState } from '../lib/config';
 import { getService } from './lib/service';
 import { homeView, graphView } from './lib/data';
 import { ConceptList } from './components/concept-list';
@@ -6,6 +8,7 @@ import { GraphPanel } from './components/graph-panel';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
+  if (setupState() === 'first-run') redirect('/setup');
   const svc = await getService();
   const groups = homeView(svc);
   const graph = graphView(svc);
