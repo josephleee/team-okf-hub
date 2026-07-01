@@ -16,6 +16,20 @@ describe('validateGitUrl', () => {
     expect(validateGitUrl('https://x/$(whoami)').ok).toBe(false);
     expect(validateGitUrl('').ok).toBe(false);
   });
+  it('rejects private, loopback, and link-local hosts (SSRF)', () => {
+    expect(validateGitUrl('https://localhost/x.git').ok).toBe(false);
+    expect(validateGitUrl('https://127.0.0.1/x.git').ok).toBe(false);
+    expect(validateGitUrl('https://169.254.169.254/latest/').ok).toBe(false); // cloud metadata
+    expect(validateGitUrl('https://10.0.0.5/x.git').ok).toBe(false);
+    expect(validateGitUrl('https://192.168.1.1/x.git').ok).toBe(false);
+    expect(validateGitUrl('https://172.16.0.1/x.git').ok).toBe(false);
+    expect(validateGitUrl('https://[::1]/x.git').ok).toBe(false);
+    expect(validateGitUrl('https://user:pass@10.0.0.5/x.git').ok).toBe(false); // creds don't bypass host check
+  });
+  it('still accepts ordinary public hosts', () => {
+    expect(validateGitUrl('https://gitlab.com/org/repo.git').ok).toBe(true);
+    expect(validateGitUrl('https://github.com/org/repo.git').ok).toBe(true);
+  });
 });
 
 describe('validateLocalPath', () => {
