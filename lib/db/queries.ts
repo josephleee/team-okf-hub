@@ -141,3 +141,65 @@ export function graphAll(db: DB): GraphData {
     .all() as { src_path: string; dst_path: string }[];
   return { nodes, edges: rows.map((r) => ({ from: r.src_path, to: r.dst_path })) };
 }
+
+export interface WorkRow {
+  path: string;
+  title: string | null;
+  actor: string | null;
+  project: string | null;
+  timestamp: string | null;
+  tags: string[];
+  artifacts: string[];
+}
+
+export function recentWork(
+  db: DB,
+  filter: { project?: string; actor?: string; limit?: number } = {},
+): WorkRow[] {
+  const clauses = ["type = 'WorkRecord'"];
+  const params: unknown[] = [];
+  if (filter.project) {
+    clauses.push("json_extract(frontmatter_json, '$.project') = ?");
+    params.push(filter.project);
+  }
+  if (filter.actor) {
+    clauses.push("json_extract(frontmatter_json, '$.actor') = ?");
+    params.push(filter.actor);
+  }
+  const limit = filter.limit ?? 50;
+  const rows = db
+    .prepare(
+      `SELECT path, title, timestamp, frontmatter_json
+       FROM concepts
+       WHERE ${clauses.join(' AND ')}
+       ORDER BY timestamp DESC
+       LIMIT ?`,
+    )
+    .all(...params, limit) as {
+      path: string;
+      title: string | null;
+      timestamp: string | null;
+      frontmatter_json: string;
+    }[];
+
+  const strArray = (v: unknown): string[] =>
+    Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+
+  return rows.map((r) => {
+    let fm: Record<string, unknown> = {};
+    try {
+      fm = JSON.parse(r.frontmatter_json) as Record<string, unknown>;
+    } catch {
+      fm = {};
+    }
+    return {
+      path: r.path,
+      title: r.title,
+      actor: typeof fm.actor === 'string' ? fm.actor : null,
+      project: typeof fm.project === 'string' ? fm.project : null,
+      timestamp: r.timestamp,
+      tags: strArray(fm.tags),
+      artifacts: strArray(fm.artifacts),
+    };
+  });
+}

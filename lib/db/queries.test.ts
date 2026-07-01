@@ -3,7 +3,8 @@ import Database from 'better-sqlite3';
 import { buildBundle } from '../okf-core/bundle';
 import type { RawFile } from '../okf-core/types';
 import { buildIndex } from './build';
-import { getConcept, listConcepts, searchConcepts, backlinks, graphNeighborhood, graphAll } from './queries';
+import { initSchema } from './schema';
+import { getConcept, listConcepts, searchConcepts, backlinks, graphNeighborhood, graphAll, recentWork } from './queries';
 
 const FILES: RawFile[] = [
   { path: 'tables/orders.md', content: '---\ntype: Table\ntitle: Orders\ntags: [sales]\n---\nOrders link to [c](customers.md).' },
@@ -86,5 +87,57 @@ describe('graphAll', () => {
     // orders -> customers (resolved) and wau -> orders (resolved)
     expect(g.edges).toContainEqual({ from: 'tables/orders.md', to: 'tables/customers.md' });
     expect(g.edges).toContainEqual({ from: 'metrics/wau.md', to: 'tables/orders.md' });
+  });
+});
+
+describe('recentWork', () => {
+  function seed() {
+    const db = new Database(':memory:');
+    initSchema(db);
+    const ins = db.prepare(`INSERT INTO concepts
+      (path, type, title, description, resource, timestamp, frontmatter_json, body_md, body_html, parse_error)
+      VALUES (@path,@type,@title,null,null,@timestamp,@fm,'','',null)`);
+    const rec = (path: string, title: string, ts: string, fm: object) =>
+      ins.run({ path, type: 'WorkRecord', title, timestamp: ts, fm: JSON.stringify({ type: 'WorkRecord', title, ...fm }) });
+    rec('work/a/2026-07-01-090000-first.md', 'First', '2026-07-01T09:00:00Z',
+      { actor: 'alice', project: 'proj-a', tags: ['fix'], artifacts: ['https://x/1'] });
+    rec('work/b/2026-07-02-090000-second.md', 'Second', '2026-07-02T09:00:00Z',
+      { actor: 'bob', project: 'proj-b', tags: [], artifacts: [] });
+    rec('work/a/2026-07-03-090000-third.md', 'Third', '2026-07-03T09:00:00Z',
+      { actor: 'alice', project: 'proj-a', tags: ['feature'], artifacts: [] });
+    // a non-WorkRecord concept that must be excluded
+    ins.run({ path: 'tables/orders.md', type: 'table', title: 'Orders', timestamp: '2026-07-04T00:00:00Z',
+      fm: JSON.stringify({ type: 'table', actor: 'alice' }) });
+    return db;
+  }
+
+  it('returns only WorkRecords, newest first', () => {
+    const db = seed();
+    const rows = recentWork(db);
+    expect(rows.map((r) => r.title)).toEqual(['Third', 'Second', 'First']);
+    db.close();
+  });
+
+  it('parses actor, project, tags, artifacts from frontmatter', () => {
+    const db = seed();
+    const first = recentWork(db).find((r) => r.title === 'First')!;
+    expect(first.actor).toBe('alice');
+    expect(first.project).toBe('proj-a');
+    expect(first.tags).toEqual(['fix']);
+    expect(first.artifacts).toEqual(['https://x/1']);
+    db.close();
+  });
+
+  it('filters by project and actor', () => {
+    const db = seed();
+    expect(recentWork(db, { project: 'proj-a' }).map((r) => r.title)).toEqual(['Third', 'First']);
+    expect(recentWork(db, { actor: 'bob' }).map((r) => r.title)).toEqual(['Second']);
+    db.close();
+  });
+
+  it('respects limit', () => {
+    const db = seed();
+    expect(recentWork(db, { limit: 1 }).map((r) => r.title)).toEqual(['Third']);
+    db.close();
   });
 });
