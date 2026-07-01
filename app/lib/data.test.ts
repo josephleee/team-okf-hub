@@ -1,7 +1,8 @@
 import { describe, it, expect, afterAll } from 'vitest';
 import { join } from 'node:path';
 import { createService } from '../../lib/okf-service';
-import { homeView, conceptView, searchView, graphView, escapeSnippet } from './data';
+import { homeView, conceptView, searchView, graphView, escapeSnippet, workView } from './data';
+import type { WorkRow } from '../../lib/db/queries';
 
 const svc = await createService(join(process.cwd(), 'bundles/example'));
 afterAll(() => svc.close());
@@ -55,5 +56,27 @@ describe('escapeSnippet', () => {
   it('escapes HTML in snippet text but turns the sentinel markers into <mark>', () => {
     const raw = 'a <b> \x02hit\x03 & c';
     expect(escapeSnippet(raw)).toBe('a &lt;b&gt; <mark>hit</mark> &amp; c');
+  });
+});
+
+describe('workView', () => {
+  const rows: WorkRow[] = [
+    { path: 'work/a/2026-07-02-090000-two.md', title: 'Two', actor: 'bob', project: 'a', timestamp: '2026-07-02T09:00:00Z', tags: [], artifacts: [] },
+    { path: 'work/a/2026-07-01-090000-one.md', title: 'One', actor: 'alice', project: 'a', timestamp: '2026-07-01T09:00:00Z', tags: ['fix'], artifacts: ['https://x/1'] },
+    { path: 'work/a/2026-07-02-100000-three.md', title: 'Three', actor: 'alice', project: 'a', timestamp: '2026-07-02T10:00:00Z', tags: [], artifacts: [] },
+  ];
+
+  it('groups by date descending and carries the filter + total', () => {
+    const v = workView(rows, { project: 'a' });
+    expect(v.total).toBe(3);
+    expect(v.filter.project).toBe('a');
+    expect(v.groups.map((g) => g.date)).toEqual(['2026-07-02', '2026-07-01']);
+    expect(v.groups[0]!.items.map((i) => i.title)).toEqual(['Two', 'Three']);
+  });
+
+  it('falls back to path when a title is null', () => {
+    const v = workView([{ path: 'work/x.md', title: null, actor: null, project: null, timestamp: null, tags: [], artifacts: [] }]);
+    expect(v.groups[0]!.items[0]!.title).toBe('work/x.md');
+    expect(v.groups[0]!.date).toBe('undated');
   });
 });

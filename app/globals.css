@@ -233,3 +233,19 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-issue.error { color: #b4232a; border-color: #f0c4c6; background: #fdf3f3; }
 .okf-issue.warning { color: #8a6312; border-color: #efe0bd; background: #fdfaf2; }
 .okf-editor__preview { border: 1px dashed var(--okf-border); border-radius: var(--okf-radius); padding: 12px 14px; max-height: 320px; overflow: auto; }
+
+/* --- Work timeline --- */
+.okf-work-timeline { display: flex; flex-direction: column; gap: 20px; }
+.okf-work-header { display: flex; align-items: baseline; gap: 12px; }
+.okf-work-count { color: var(--okf-muted, #5b6b82); font-size: 0.85rem; }
+.okf-work-clear { font-size: 0.8rem; }
+.okf-work-empty { color: var(--okf-muted, #5b6b82); }
+.okf-work-group { display: flex; flex-direction: column; gap: 8px; }
+.okf-work-date { font-family: var(--okf-mono, ui-monospace, monospace); font-size: 0.8rem; letter-spacing: 0.04em; color: var(--okf-accent, #2563eb); }
+.okf-work-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.okf-work-item { border: 1px solid var(--okf-border, #d7deea); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.okf-work-title { font-weight: 600; }
+.okf-work-meta { display: flex; gap: 12px; font-size: 0.8rem; color: var(--okf-muted, #5b6b82); }
+.okf-work-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.okf-work-tag { font-size: 0.72rem; padding: 1px 7px; border-radius: 999px; background: var(--okf-chip-bg, #eef2fb); color: var(--okf-ink, #0f2747); }
+.okf-work-artifacts { margin: 0; padding-left: 18px; font-size: 0.8rem; }

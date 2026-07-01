@@ -9,6 +9,7 @@ export function Nav() {
           OKF Hub
         </Link>
         <Link href="/concept/new" className="okf-nav__link">+ new</Link>
+        <Link href="/work" className="okf-nav__link">Work</Link>
       </div>
       <form className="okf-nav__search" action="/search" method="get" role="search">
         <span className="okf-searchfield__icon" aria-hidden="true">⌕</span>

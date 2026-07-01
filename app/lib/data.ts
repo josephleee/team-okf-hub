@@ -1,5 +1,5 @@
 import type { OkfService } from '../../lib/okf-service';
-import { SNIPPET_OPEN, SNIPPET_CLOSE } from '../../lib/db/queries';
+import { SNIPPET_OPEN, SNIPPET_CLOSE, type WorkRow } from '../../lib/db/queries';
 
 export function escapeSnippet(raw: string): string {
   return raw
@@ -103,4 +103,51 @@ export function graphView(svc: OkfService): GraphView {
     nodes: g.nodes.map((n) => ({ path: n.path, title: titleOf(n.path, n.title), type: n.type })),
     edges: g.edges,
   };
+}
+
+export interface WorkItem {
+  path: string;
+  title: string;
+  actor: string | null;
+  project: string | null;
+  timestamp: string | null;
+  tags: string[];
+  artifacts: string[];
+}
+
+export interface WorkGroup {
+  date: string;
+  items: WorkItem[];
+}
+
+export interface WorkView {
+  filter: { project?: string; actor?: string };
+  groups: WorkGroup[];
+  total: number;
+}
+
+export function workView(
+  rows: WorkRow[],
+  filter: { project?: string; actor?: string } = {},
+): WorkView {
+  const byDate = new Map<string, WorkItem[]>();
+  for (const r of rows) {
+    const date = r.timestamp ? r.timestamp.slice(0, 10) : 'undated';
+    const item: WorkItem = {
+      path: r.path,
+      title: r.title ?? r.path,
+      actor: r.actor,
+      project: r.project,
+      timestamp: r.timestamp,
+      tags: r.tags,
+      artifacts: r.artifacts,
+    };
+    const list = byDate.get(date);
+    if (list) list.push(item);
+    else byDate.set(date, [item]);
+  }
+  const groups = [...byDate.entries()]
+    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+    .map(([date, items]) => ({ date, items }));
+  return { filter, groups, total: rows.length };
 }

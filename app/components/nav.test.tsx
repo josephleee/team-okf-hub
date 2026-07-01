@@ -12,4 +12,9 @@ describe('Nav', () => {
     expect(screen.getByRole('searchbox', { name: /search/i })).toBeTruthy();
     expect(screen.getByRole('link', { name: /new/i }).getAttribute('href')).toBe('/concept/new');
   });
+
+  it('links to the work timeline', () => {
+    render(<Nav />);
+    expect(screen.getByRole('link', { name: /^Work$/ }).getAttribute('href')).toBe('/work');
+  });
 });
