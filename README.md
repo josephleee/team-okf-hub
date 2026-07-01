@@ -8,18 +8,23 @@
 
 OKF Hub turns a team's OKF bundle — a git repository of Markdown files with YAML
 frontmatter — into a living knowledge hub: **browse**, **search**, and navigate
-the **concept graph**, **edit** through a pull-request flow, and **serve the
-knowledge to AI agents** over MCP and REST.
+the **concept graph**, **edit** concepts in the browser with live validation, and
+**serve the knowledge to AI agents** over MCP and REST. It also doubles as an
+**org-wide work-record memory**: agents record what they did as OKF `WorkRecord`
+concepts and query that shared history back — the same store, written *and* read
+by agents.
 
 The guiding principle: **git is the source of truth.** OKF Hub is a
 read / write / serve layer on top of a plain OKF git repo. The only thing it
 stores beyond your repo is a disposable SQLite index that can be rebuilt from git
 at any time. Your knowledge is never locked into a database.
 
-> **Status: 🚧 Early development.** The design is complete (see
-> [`docs/superpowers/specs/`](docs/superpowers/specs/)); implementation is just
-> starting. Features below describe the **planned v1** — they are not all working
-> yet.
+> **Status: 🟢 Actively developed.** The core is implemented, tested, and running:
+> browse / search / graph (M1), in-browser editing with live validation + sanitized
+> preview (M2a), and the **WorkRecord org-memory** for AI agents over MCP + REST
+> (M3). Still planned: GitHub sign-in + edit→PR (M2b), git-native sync, and Docker
+> packaging. Features below are marked ✅ (shipped) or 🔜 (planned). See
+> [`docs/superpowers/specs/`](docs/superpowers/specs/) for the designs.
 
 ## What is OKF?
 
@@ -55,7 +60,7 @@ multiple agents, OKF is the right layer** — not per-agent memory.
   should trust as fact.
 - **OKF** is shared, human-curated, and validated — one canonical source of
   truth that every agent, session, and teammate reads the same way, through a
-  uniform interface (MCP `okf_search` / `okf_get` / `okf_list` / `okf_graph`).
+  uniform interface (MCP `okf_search` / `okf_get` / `okf_recent_work` / `okf_graph`).
 
 The distinction matters most for multi-agent setups:
 
@@ -67,34 +72,51 @@ The distinction matters most for multi-agent setups:
 | **Scope** | private to one agent/session | shared across the whole team |
 | **Access** | ad-hoc, per-agent format | uniform MCP / REST interface |
 
-Crucially, **agents don't write to OKF directly** — that would erode the very
-guarantee (validated canon) that makes it trustworthy. Instead they propose
-changes through the same **edit → PR** flow humans use, and a review gate decides
-what becomes canon. Rule of thumb: an organization's *"what is true"* belongs in
-OKF (shared, versioned, reviewed); an agent's *"what I'm working on / what this
-user prefers"* stays in memory (private, low-friction).
+OKF Hub keeps two write paths, matched to two kinds of knowledge:
 
-## Planned features (v1)
+- **Canonical knowledge** (table schemas, metric definitions, runbooks) — agents
+  **don't** write this directly; that would erode the validated-canon guarantee.
+  They propose changes through the same **edit → validate → PR** flow humans use,
+  and a review gate decides what becomes canon. *(M2a ships local editing; the
+  automatic PR flow is M2b.)*
+- **Work records** (what an agent actually did — a completed task, with its
+  artifacts and links) — agents **do** emit these directly, via the token-gated,
+  schema-validated, HTML-sanitized `okf_record_work` tool. A WorkRecord is an
+  append-only *activity log entry*, not a claim about canonical truth, so a
+  lighter write path is appropriate.
 
-- 📖 **Browse & render** — read concepts with metadata, backlinks, and outbound links.
-- 🔎 **Full-text search** — fast keyword search (SQLite FTS5), filterable by type/tags.
-- 🕸️ **Graph explorer** — navigate the concept graph interactively.
-- ✏️ **Edit → PR** — in-browser editing with live validation, landing as a pull
-  request (commit authored by the real user).
-- 🔌 **Agent access** — an MCP endpoint (`okf_search`, `okf_get`, `okf_list`,
-  `okf_graph`) plus a read-only REST API.
-- 🔐 **GitHub auth** — sign in with GitHub; access scoped to your workspace repo.
-- 🔄 **Git-native sync** — webhook + poll keep the index in sync with your repo.
-- 🐳 **Self-host** — Docker + docker-compose, configured by env.
+Rule of thumb: an organization's *"what is true"* is curated canon (shared,
+versioned, reviewed); *"what happened / who did what"* is the WorkRecord log
+(agent-emitted, validated); and an agent's private *"what I'm working on / what
+this user prefers"* stays in its own memory (low-friction, untrusted).
+
+## Features
+
+- ✅ 📖 **Browse & render** — read concepts with metadata, backlinks, and outbound links.
+- ✅ 🔎 **Full-text search** — fast keyword search (SQLite FTS5), filterable by type/tags.
+- ✅ 🕸️ **Graph explorer** — navigate the concept graph interactively (on the home page).
+- ✅ ✏️ **In-browser editing** — live okf-core validation + sanitized preview, saving to
+  your local bundle (`.md` on disk; you commit with git). 🔜 automatic **edit → PR** (M2b).
+- ✅ 🧠 **Org memory (WorkRecords)** — agents record completed work as OKF `WorkRecord`
+  concepts and query the shared history back; browse it at `/work`.
+- ✅ 🔌 **Agent access** — an **MCP** endpoint (`okf_record_work`, `okf_recent_work`,
+  `okf_search`, `okf_get`, `okf_graph`) plus a **REST** API (`/api/v1/*`). REST writes are
+  token-gated and REST reads are open; the **MCP endpoint is fully token-gated** (it
+  exposes a write tool, so every request needs the token) in this MVP.
+- 🔜 🔐 **GitHub auth** — sign in with GitHub; access scoped to your workspace repo (M2b).
+- 🔜 🔄 **Git-native sync** — webhook + poll keep the index in sync with your repo.
+- 🔜 🐳 **Self-host** — Docker + docker-compose, configured by env.
 
 ## How it works
 
 ```
-Browser / AI agent  ─▶  OKF Hub (Next.js: UI + REST + MCP)  ─▶  SQLite index (cache)
-                                      │
-                                      ▼
-                        GitHub: your OKF repo  ◀── source of truth
-                        (reads via clone · writes via PR as you)
+   Browser ──────────────▶┐
+                          │
+   AI agent ─ MCP/REST ──▶┤   OKF Hub (Next.js: UI + REST + MCP)  ──▶  SQLite index (cache)
+   · reads knowledge      │                  │                          (rebuilt from git)
+   · writes WorkRecords   │                  ▼
+                          └──▶   OKF git bundle on disk  ◀── source of truth
+                                 (.md files; you commit / push to GitHub)
 ```
 
 See [`docs/superpowers/specs/2026-06-29-okf-hub-design.md`](docs/superpowers/specs/2026-06-29-okf-hub-design.md)
@@ -117,8 +139,9 @@ npm run dev          # http://localhost:3000
 # OKF_BUNDLE_DIR=/path/to/your/okf-bundle npm run dev   # use your own bundle
 ```
 
-Pages: `/` (browse by type) · `/concept/<path>` (rendered concept + backlinks) ·
-`/search?q=` (full-text search) · `/graph` (interactive concept graph).
+Pages: `/` (browse by type + concept graph) · `/concept/<path>` (rendered concept +
+backlinks) · `/search?q=` (full-text search) · `/graph` (full-graph explorer) ·
+`/work` (WorkRecord timeline) · `/concept/new` and `/edit/<path>` (editor).
 
 ## Editing (M2a)
 
@@ -141,8 +164,9 @@ and a **REST** mirror.
 
 ### Configuration
 
-Set a shared ingestion token (required for all writes; if unset, writes are refused
-with HTTP 503):
+Set a shared ingestion token. It is required for all writes **and for the entire MCP
+endpoint** (which exposes a write tool); if it is unset, those requests are refused
+with HTTP 503:
 
 ```bash
 export OKF_INGEST_TOKEN="<a long random string>"
@@ -167,13 +191,14 @@ Tools then available in every session:
 | `okf_get` | fetch one concept/WorkRecord by path |
 | `okf_graph` | graph neighborhood of a concept |
 
-### Security note: reads are open in this MVP
+### Security note: REST reads are open in this MVP
 
-REST and MCP **reads are open** (no auth required) in this MVP. This means the
-entire bundle — all concepts, not just WorkRecords — is world-readable to anyone
-who can reach the server. Run OKF Hub on a trusted network or behind a
-reverse-proxy access control until read authentication is added. **Do not expose
-it publicly assuming reads are protected.**
+**REST reads** (`GET /api/v1/*`) are open — no auth required — in this MVP. That
+means the entire bundle (all concepts, not just WorkRecords) is world-readable to
+anyone who can reach the server. (The **MCP endpoint is fully token-gated**, reads
+included, because it also exposes the `okf_record_work` write tool.) Run OKF Hub on a
+trusted network or behind a reverse-proxy access control until read authentication is
+added. **Do not expose it publicly assuming REST reads are protected.**
 
 ### REST mirror
 
@@ -191,14 +216,17 @@ curl 'http://localhost:3000/api/v1/concept?path=work/team-okf-hub/2026-07-01-142
 ```
 
 A WorkRecord is a normal OKF concept (`type: WorkRecord`) stored at
-`work/<project>/<YYYY-MM-DD>-<HHMMSS>-<slug>.md`. Bodies are sanitized on render, and
+`work/<project-slug>/<YYYY-MM-DD>-<HHMMSS>-<slug>.md` (the `project` and the title are
+slugified for the path). Bodies are sanitized on render, and
 links in the body (`[orders](tables/orders.md)`) wire work into the knowledge graph.
 Browse recent work at `/work`.
 
 ## Tech stack
 
-Next.js (App Router) · TypeScript · SQLite (FTS5) · GitHub OAuth (Auth.js) ·
-Model Context Protocol (MCP) · Docker.
+**In use today:** Next.js 15 (App Router, React 19) · TypeScript (ESM) ·
+better-sqlite3 (SQLite + FTS5) · gray-matter · unified / remark / rehype (+
+**rehype-sanitize**) · Cytoscape.js (graph) · **MCP** via `mcp-handler` + `zod` ·
+Vitest. **Planned:** GitHub OAuth (Auth.js) · Docker.
 
 ## Roadmap
 
