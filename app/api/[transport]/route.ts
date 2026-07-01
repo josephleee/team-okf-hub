@@ -57,7 +57,7 @@ const handler = createMcpHandler(
     );
   },
   {},
-  { basePath: '/api/mcp' },
+  { basePath: '/api' },
 );
 
 async function authed(req: Request): Promise<Response> {
