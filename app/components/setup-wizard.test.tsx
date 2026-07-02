@@ -37,7 +37,7 @@ describe('SetupWizard stepper', () => {
     fireEvent.click(screen.getByLabelText(/clone a public git url/i));
     const next = screen.getByRole('button', { name: /next/i });
     expect((next as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.change(screen.getByLabelText(/git url/i), { target: { value: 'https://github.com/org/b.git' } });
+    fireEvent.change(screen.getByLabelText('git url'), { target: { value: 'https://github.com/org/b.git' } });
     expect((next as HTMLButtonElement).disabled).toBe(false);
   });
 
