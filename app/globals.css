@@ -262,3 +262,20 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-setup__row { border-top: 1px dashed var(--okf-border, #d7deea); padding-top: 12px; }
 .okf-setup button { align-self: flex-start; padding: 8px 16px; border-radius: 8px; border: 0; background: var(--okf-accent, #2563eb); color: #fff; font-weight: 600; cursor: pointer; }
 .okf-setup button:disabled { opacity: .6; cursor: default; }
+
+/* --- Guided setup wizard --- */
+.okf-setup__steps { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.okf-setup__dot { width: 10px; height: 10px; border-radius: 50%; background: #d7deea; }
+.okf-setup__dot.is-current { background: #2563eb; }
+.okf-setup__dot.is-done { background: #0f7b46; }
+.okf-setup__steplabel { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem; color: #5b6b82; margin-left: 6px; }
+.okf-setup__help { background: #eef2fb; border-radius: 10px; padding: 10px 14px; font-size: 0.86rem; color: #0f2747; }
+.okf-setup__help p { margin: 3px 0; }
+.okf-setup__help b { color: #2563eb; }
+.okf-setup__hint { font-size: 0.8rem; color: #5b6b82; margin: 2px 0 6px; }
+.okf-setup__nav { display: flex; gap: 10px; margin-top: 6px; }
+.okf-setup__nav .okf-setup__back { background: transparent; color: #2563eb; border: 1px solid #d7deea; }
+.okf-setup__summary { border: 1px dashed #d7deea; border-radius: 8px; padding: 10px 12px; font-size: 0.86rem; color: #5b6b82; }
+.okf-setup__copyrow { display: flex; align-items: flex-start; gap: 8px; }
+.okf-setup__copyrow pre { flex: 1; margin: 0; }
+.okf-setup__copy { align-self: flex-start; padding: 6px 12px; font-size: 0.8rem; }
