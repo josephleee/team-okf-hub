@@ -3,6 +3,7 @@ import { isAdmin } from '../lib/admin-session';
 import { completeSetup, adminLogin, rotateToken, renameWorkspace, changeBundle } from '../lib/setup-actions';
 import { SetupWizard } from '../components/setup-wizard';
 import { RotateTokenPanel } from '../components/rotate-token';
+import { AdminLogin } from '../components/admin-login';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,11 +33,7 @@ export default async function SetupPage() {
   if (!admin) {
     return (
       <main className="okf-setup okf-screen">
-        <form className="okf-setup" action={async (fd: FormData) => { 'use server'; await adminLogin(String(fd.get('password') ?? '')); }}>
-          <h1>Admin login</h1>
-          <label>Password <input name="password" type="password" aria-label="admin password" /></label>
-          <button type="submit">Log in</button>
-        </form>
+        <AdminLogin onLogin={adminLogin} />
       </main>
     );
   }
