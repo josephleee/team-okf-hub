@@ -52,3 +52,25 @@ describe('SetupWizard stepper', () => {
     expect(await screen.findByText(/no \.md files/i)).toBeTruthy();
   });
 });
+
+describe('SetupWizard completion screen', () => {
+  it('shows token + mcp with Copy buttons and a copied state', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    const onComplete = vi.fn(async () => ({ ok: true as const, token: 'TESTTOKEN123', mcpCommand: 'claude mcp add ... Bearer TESTTOKEN123' }));
+    render(<SetupWizard onComplete={onComplete} />);
+    fireEvent.change(screen.getByLabelText(/workspace name/i), { target: { value: 'Acme' } });
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.change(screen.getByLabelText(/admin password/i), { target: { value: 'longenough' } });
+    fireEvent.click(screen.getByRole('button', { name: /finish setup/i }));
+
+    expect(await screen.findByText('TESTTOKEN123')).toBeTruthy();
+    const copyButtons = await screen.findAllByRole('button', { name: /copy/i });
+    expect(copyButtons.length).toBeGreaterThanOrEqual(2); // token + mcp command
+    fireEvent.click(copyButtons[0]!);
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('TESTTOKEN123'));
+    expect(await screen.findByText(/copied/i)).toBeTruthy();
+    expect(screen.getByRole('link', { name: /manage settings/i }).getAttribute('href')).toBe('/setup');
+  });
+});

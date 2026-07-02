@@ -42,18 +42,7 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
     }
   }
 
-  if (done) {
-    return (
-      <section className="okf-setup okf-setup--done">
-        <h1>Setup complete ✓</h1>
-        <p className="okf-setup__warn">Copy your ingestion token now — it will not be shown again.</p>
-        <pre className="okf-setup__token"><code>{done.token}</code></pre>
-        <h2>Connect an agent (MCP)</h2>
-        <pre><code>{done.mcpCommand}</code></pre>
-        <p><a href="/">Go to the hub →</a> · <a href="/work">Work timeline →</a></p>
-      </section>
-    );
-  }
+  if (done) return <SetupDone token={done.token} mcpCommand={done.mcpCommand} />;
 
   return (
     <section className="okf-setup">
@@ -142,6 +131,47 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
           <button type="button" onClick={finish} disabled={!stepValid() || busy}>{busy ? 'Setting up…' : 'Finish setup'}</button>
         )}
       </div>
+    </section>
+  );
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard?.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable — no-op */
+    }
+  }
+  return (
+    <button type="button" className="okf-setup__copy" onClick={copy}>{copied ? 'Copied!' : 'Copy'}</button>
+  );
+}
+
+function SetupDone({ token, mcpCommand }: { token: string; mcpCommand: string }) {
+  return (
+    <section className="okf-setup okf-setup--done">
+      <h1>Setup complete ✓</h1>
+
+      <h2>Your ingestion token</h2>
+      <p className="okf-setup__help">A bearer credential agents use to read and write this hub via MCP + REST. It is shown once and stored only as a hash — copy it now.</p>
+      <div className="okf-setup__copyrow">
+        <pre className="okf-setup__token"><code>{token}</code></pre>
+        <CopyButton text={token} />
+      </div>
+
+      <h2>Connect an agent</h2>
+      <div className="okf-setup__copyrow">
+        <pre><code>{mcpCommand}</code></pre>
+        <CopyButton text={mcpCommand} />
+      </div>
+      <p className="okf-setup__hint">Run this where Claude Code is installed.</p>
+
+      <h2>What&rsquo;s next</h2>
+      <p><a href="/">Browse the hub →</a> · <a href="/work">Work timeline →</a> · <a href="/setup">Manage settings →</a></p>
     </section>
   );
 }
