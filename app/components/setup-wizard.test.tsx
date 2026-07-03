@@ -41,16 +41,43 @@ describe('SetupWizard stepper', () => {
     expect((next as HTMLButtonElement).disabled).toBe(false);
   });
 
-  it('routes a bundle error back to the bundle step', async () => {
+  // Fill name → pick local bundle → password, then click Finish. Returns after Finish is clicked.
+  const walkToFinishWithLocal = (onComplete: ReturnType<typeof vi.fn>) => {
+    render(<SetupWizard onComplete={onComplete} />);
+    fireEvent.change(screen.getByLabelText(/workspace name/i), { target: { value: 'Acme' } });
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));            // → bundle step
+    fireEvent.click(screen.getByLabelText(/local directory path/i));           // pick local source
+    fireEvent.change(screen.getByLabelText('local path'), { target: { value: '/srv/x' } });
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));            // → password step
+    fireEvent.change(screen.getByLabelText(/admin password/i), { target: { value: 'longenough' } });
+    fireEvent.click(screen.getByRole('button', { name: /finish setup/i }));
+  };
+
+  it('routes a bundle error (local/git source) back to the bundle step', async () => {
     const onComplete = vi.fn(async () => ({ ok: false as const, error: 'directory contains no .md files' }));
+    walkToFinishWithLocal(onComplete);
+    expect(await screen.findByText(/no \.md files/i)).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /choose a knowledge bundle/i })).toBeTruthy(); // moved back to fix it
+  });
+
+  it('clears the routed bundle error when advancing again', async () => {
+    const onComplete = vi.fn(async () => ({ ok: false as const, error: 'directory contains no .md files' }));
+    walkToFinishWithLocal(onComplete);
+    expect(await screen.findByText(/no \.md files/i)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /next/i })); // advance off the bundle step
+    expect(screen.queryByText(/no \.md files/i)).toBeNull();        // stale error cleared
+  });
+
+  it('keeps a non-bundle error on the finish step for the example bundle', async () => {
+    const onComplete = vi.fn(async () => ({ ok: false as const, error: 'setup already completed' }));
     render(<SetupWizard onComplete={onComplete} />);
     fireEvent.change(screen.getByLabelText(/workspace name/i), { target: { value: 'Acme' } });
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
-    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+    fireEvent.click(screen.getByRole('button', { name: /next/i })); // example is default → password step
     fireEvent.change(screen.getByLabelText(/admin password/i), { target: { value: 'longenough' } });
     fireEvent.click(screen.getByRole('button', { name: /finish setup/i }));
-    expect(await screen.findByText(/no \.md files/i)).toBeTruthy();
-    expect(screen.getByRole('heading', { name: /choose a knowledge bundle/i })).toBeTruthy(); // moved back to the bundle step to fix it
+    expect(await screen.findByText(/already completed/i)).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /set an admin password/i })).toBeTruthy(); // stayed on finish step
   });
 
   it('advances when the form is submitted (Enter) on a valid step', () => {

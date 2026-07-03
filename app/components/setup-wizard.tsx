@@ -35,9 +35,11 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
     try {
       const res = await onComplete({ workspaceName, bundleSource, localPath, gitUrl, adminPassword });
       if (res.ok) setDone({ token: res.token, mcpCommand: res.mcpCommand });
-      // Workspace and password are already gated client-side, so a completeSetup
-      // failure here is a bundle problem — send the user back to the bundle step to fix it.
-      else { setError(res.error); setStep(1); }
+      // Workspace and password are gated client-side, so a failure with a local/git
+      // source is a bundle-validation problem — send the user back to the bundle step
+      // to fix the path/URL. The example bundle can't produce one, so leave that error
+      // in place on the finish step (avoids misdirecting a non-bundle error like a race).
+      else { setError(res.error); if (bundleSource !== 'example') setStep(1); }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'setup failed');
     } finally {
@@ -48,7 +50,7 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (busy || !stepValid()) return;
-    if (step < 2) setStep(step + 1);
+    if (step < 2) { setError(null); setStep(step + 1); }
     else void finish();
   }
 
