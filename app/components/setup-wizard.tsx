@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import type { SetupInput } from '../lib/setup-actions';
+import { CopyButton } from './copy-button';
 
 type Result = { ok: true; token: string; mcpCommand: string } | { ok: false; error: string };
 type BundleSource = 'example' | 'local' | 'git';
@@ -132,22 +133,6 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
         )}
       </div>
     </section>
-  );
-}
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  async function copy() {
-    try {
-      await navigator.clipboard?.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard unavailable — no-op */
-    }
-  }
-  return (
-    <button type="button" className="okf-setup__copy" onClick={copy}>{copied ? 'Copied!' : 'Copy'}</button>
   );
 }
 

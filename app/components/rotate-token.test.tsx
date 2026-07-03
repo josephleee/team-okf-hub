@@ -13,6 +13,7 @@ describe('RotateTokenPanel', () => {
     await waitFor(() => expect(onRotate).toHaveBeenCalled());
     expect(await screen.findByText('NEWTOKEN999')).toBeTruthy();
     expect(screen.getByText(/will not be shown again/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /copy/i })).toBeTruthy(); // shared CopyButton for the new token
   });
 
   it('shows the error when rotation is refused', async () => {
