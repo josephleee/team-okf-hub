@@ -35,7 +35,9 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
     try {
       const res = await onComplete({ workspaceName, bundleSource, localPath, gitUrl, adminPassword });
       if (res.ok) setDone({ token: res.token, mcpCommand: res.mcpCommand });
-      else setError(res.error);
+      // Workspace and password are already gated client-side, so a completeSetup
+      // failure here is a bundle problem — send the user back to the bundle step to fix it.
+      else { setError(res.error); setStep(1); }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'setup failed');
     } finally {
@@ -43,10 +45,17 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
     }
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy || !stepValid()) return;
+    if (step < 2) setStep(step + 1);
+    else void finish();
+  }
+
   if (done) return <SetupDone token={done.token} mcpCommand={done.mcpCommand} />;
 
   return (
-    <section className="okf-setup">
+    <form className="okf-setup" onSubmit={handleSubmit}>
       <div className="okf-setup__steps" aria-label={`Step ${step + 1} of 3`}>
         {STEP_TITLES.map((t, i) => (
           <span key={t} className={`okf-setup__dot${i === step ? ' is-current' : i < step ? ' is-done' : ''}`} />
@@ -126,13 +135,13 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
           <button type="button" className="okf-setup__back" onClick={() => { setError(null); setStep(step - 1); }} disabled={busy}>← Back</button>
         )}
         {step < 2 && (
-          <button type="button" onClick={() => setStep(step + 1)} disabled={!stepValid()}>Next →</button>
+          <button type="submit" disabled={!stepValid()}>Next →</button>
         )}
         {step === 2 && (
-          <button type="button" onClick={finish} disabled={!stepValid() || busy}>{busy ? 'Setting up…' : 'Finish setup'}</button>
+          <button type="submit" disabled={!stepValid() || busy}>{busy ? 'Setting up…' : 'Finish setup'}</button>
         )}
       </div>
-    </section>
+    </form>
   );
 }
 

@@ -41,7 +41,7 @@ describe('SetupWizard stepper', () => {
     expect((next as HTMLButtonElement).disabled).toBe(false);
   });
 
-  it('shows the server error on the finish step', async () => {
+  it('routes a bundle error back to the bundle step', async () => {
     const onComplete = vi.fn(async () => ({ ok: false as const, error: 'directory contains no .md files' }));
     render(<SetupWizard onComplete={onComplete} />);
     fireEvent.change(screen.getByLabelText(/workspace name/i), { target: { value: 'Acme' } });
@@ -50,6 +50,21 @@ describe('SetupWizard stepper', () => {
     fireEvent.change(screen.getByLabelText(/admin password/i), { target: { value: 'longenough' } });
     fireEvent.click(screen.getByRole('button', { name: /finish setup/i }));
     expect(await screen.findByText(/no \.md files/i)).toBeTruthy();
+    expect(screen.getByRole('heading', { name: /choose a knowledge bundle/i })).toBeTruthy(); // moved back to the bundle step to fix it
+  });
+
+  it('advances when the form is submitted (Enter) on a valid step', () => {
+    const { container } = render(<SetupWizard onComplete={okComplete()} />);
+    fireEvent.change(screen.getByLabelText(/workspace name/i), { target: { value: 'Acme' } });
+    fireEvent.submit(container.querySelector('form')!);
+    expect(screen.getByRole('heading', { name: /choose a knowledge bundle/i })).toBeTruthy(); // Enter advanced to step 2
+  });
+
+  it('does not advance on submit when the current step is invalid', () => {
+    const { container } = render(<SetupWizard onComplete={okComplete()} />);
+    fireEvent.submit(container.querySelector('form')!); // step 1 invalid (empty name)
+    expect(screen.getByLabelText(/workspace name/i)).toBeTruthy(); // still on step 1
+    expect(screen.queryByRole('heading', { name: /choose a knowledge bundle/i })).toBeNull();
   });
 });
 
