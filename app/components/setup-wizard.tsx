@@ -151,20 +151,30 @@ function SetupDone({ token, mcpCommand }: { token: string; mcpCommand: string })
   return (
     <section className="okf-setup okf-setup--done">
       <h1>Setup complete ✓</h1>
+      <p className="okf-setup__help">
+        This hub now serves your <b>knowledge bundle</b> — the folder of Markdown concepts you chose.
+        The token and command below connect your AI agents (Claude Code) to it, so they can
+        <b> search the knowledge</b> here and <b>record the work they finish</b> back into it.
+      </p>
 
       <h2>Your ingestion token</h2>
-      <p className="okf-setup__help">A bearer credential agents use to read and write this hub via MCP + REST. It is shown once and stored only as a hash — copy it now.</p>
+      <p className="okf-setup__hint">A bearer credential that lets an agent read and write this hub (via MCP + REST). Shown once and stored only as a hash — copy it now.</p>
       <div className="okf-setup__copyrow">
         <pre className="okf-setup__token"><code>{token}</code></pre>
         <CopyButton text={token} />
       </div>
 
-      <h2>Connect an agent</h2>
+      <h2>Connect an agent (MCP)</h2>
+      <p className="okf-setup__hint">Run this where Claude Code is installed. It registers this hub as an MCP server, giving agents tools to search &amp; read concepts and record completed work.</p>
       <div className="okf-setup__copyrow">
         <pre><code>{mcpCommand}</code></pre>
         <CopyButton text={mcpCommand} />
       </div>
-      <p className="okf-setup__hint">Run this where Claude Code is installed.</p>
+
+      <div className="okf-setup__note">
+        <b>What this applies to:</b> this hub and the bundle you chose — <b>not your code repo</b>, and it does not scan or
+        auto-document a codebase. Everything already in the bundle is searchable now; agents&rsquo; work records are added from here on.
+      </div>
 
       <h2>What&rsquo;s next</h2>
       <p><a href="/">Browse the hub →</a> · <a href="/work">Work timeline →</a> · <a href="/setup">Manage settings →</a></p>

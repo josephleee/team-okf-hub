@@ -114,5 +114,6 @@ describe('SetupWizard completion screen', () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('TESTTOKEN123'));
     expect(await screen.findByText(/copied/i)).toBeTruthy();
     expect(screen.getByRole('link', { name: /manage settings/i }).getAttribute('href')).toBe('/setup');
+    expect(screen.getByText(/not your code repo/i)).toBeTruthy(); // scope explainer present
   });
 });
