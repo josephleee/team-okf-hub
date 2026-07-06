@@ -43,13 +43,13 @@ export default async function SetupPage() {
     <main className="okf-setup okf-screen">
       <h1>Settings — {ws?.name}</h1>
       <p className="okf-setup__lede">Signed in as admin. Changes take effect immediately.</p>
-      <form className="okf-setup__row" action={async (fd: FormData) => { 'use server'; await renameWorkspace(String(fd.get('name') ?? '')); }}>
+      <form className="okf-setup__row" action={async (fd: FormData) => { 'use server'; await renameWorkspace(ws?.slug ?? '', String(fd.get('name') ?? '')); }}>
         <label>Workspace name <input name="name" defaultValue={ws?.name} /></label>
         <p className="okf-setup__hint">Shown in the header and here.</p>
         <button type="submit">Rename</button>
       </form>
-      <RotateTokenPanel onRotate={rotateToken} />
-      <form className="okf-setup__row" action={async (fd: FormData) => { 'use server'; await changeBundle({ source: String(fd.get('source') ?? 'example') as 'example' | 'local' | 'git', localPath: String(fd.get('localPath') ?? ''), gitUrl: String(fd.get('gitUrl') ?? '') }); }}>
+      <RotateTokenPanel onRotate={rotateToken.bind(null, ws?.slug ?? '')} />
+      <form className="okf-setup__row" action={async (fd: FormData) => { 'use server'; await changeBundle(ws?.slug ?? '', { source: String(fd.get('source') ?? 'example') as 'example' | 'local' | 'git', localPath: String(fd.get('localPath') ?? ''), gitUrl: String(fd.get('gitUrl') ?? '') }); }}>
         <p className="okf-setup__hint">example = built-in sample data · local = a folder on this server (needs a .md file) · git = clone a public https:// repo.</p>
         <label>Bundle source
           <select name="source" defaultValue={ws?.bundle.source}>

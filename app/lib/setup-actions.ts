@@ -1,7 +1,7 @@
 'use server';
 import { headers } from 'next/headers';
 import {
-  readConfig, writeConfig, setupState, workspaceSlug,
+  readConfig, writeConfig, setupState, workspaceSlug, getWorkspace,
   type OkfConfig, type BundleConfig, type WorkspaceConfig,
 } from '../../lib/config';
 import { generateToken, hashToken, hashPassword, verifyPassword, randomSecret } from '../../lib/secrets';
@@ -97,33 +97,81 @@ function updateWorkspace(
   return { ...cfg, workspaces: cfg.workspaces.map((w) => (w.slug === slug ? { ...w, ...patch } : w)) };
 }
 
-export async function rotateToken(): Promise<{ ok: boolean; token?: string; error?: string }> {
+export async function rotateToken(slug: string): Promise<{ ok: boolean; token?: string; error?: string }> {
   if (!(await isAdmin())) return { ok: false, error: 'admin login required' };
   const cfg = readConfig();
   if (!cfg) return { ok: false, error: 'not configured' };
+  if (!getWorkspace(slug)) return { ok: false, error: 'unknown workspace' };
   const token = generateToken();
-  writeConfig(updateWorkspace(cfg, cfg.defaultWorkspace, { ingestTokenHash: hashToken(token) }));
+  writeConfig(updateWorkspace(cfg, slug, { ingestTokenHash: hashToken(token) }));
   return { ok: true, token };
 }
 
-export async function renameWorkspace(name: string): Promise<{ ok: boolean; error?: string }> {
+export async function renameWorkspace(slug: string, name: string): Promise<{ ok: boolean; error?: string }> {
   if (!(await isAdmin())) return { ok: false, error: 'admin login required' };
   const cfg = readConfig();
   if (!cfg) return { ok: false, error: 'not configured' };
+  if (!getWorkspace(slug)) return { ok: false, error: 'unknown workspace' };
   if (!name.trim()) return { ok: false, error: 'name is required' };
-  writeConfig(updateWorkspace(cfg, cfg.defaultWorkspace, { name: name.trim() }));
+  writeConfig(updateWorkspace(cfg, slug, { name: name.trim() }));
   return { ok: true };
 }
 
 export async function changeBundle(
+  slug: string,
   input: { source: 'example' | 'local' | 'git'; localPath?: string; gitUrl?: string },
 ): Promise<{ ok: boolean; error?: string }> {
   if (!(await isAdmin())) return { ok: false, error: 'admin login required' };
   const cfg = readConfig();
   if (!cfg) return { ok: false, error: 'not configured' };
+  if (!getWorkspace(slug)) return { ok: false, error: 'unknown workspace' };
   const bundle = resolveBundle({ bundleSource: input.source, localPath: input.localPath, gitUrl: input.gitUrl });
   if (!bundle.ok) return bundle;
-  writeConfig(updateWorkspace(cfg, cfg.defaultWorkspace, { bundle: bundle.bundle }));
-  resetService();
+  writeConfig(updateWorkspace(cfg, slug, { bundle: bundle.bundle }));
+  resetService(slug);
+  return { ok: true };
+}
+
+export async function addWorkspace(
+  input: { name: string; bundleSource: 'example' | 'local' | 'git'; localPath?: string; gitUrl?: string },
+): Promise<{ ok: true; slug: string; token: string; mcpCommand: string } | { ok: false; error: string }> {
+  if (!(await isAdmin())) return { ok: false, error: 'admin login required' };
+  const cfg = readConfig();
+  if (!cfg) return { ok: false, error: 'not configured' };
+  if (!input.name?.trim()) return { ok: false, error: 'workspace name is required' };
+  const bundle = resolveBundle(input);
+  if (!bundle.ok) return bundle;
+  const slug = workspaceSlug(input.name.trim(), cfg.workspaces.map((w) => w.slug));
+  const token = generateToken();
+  const workspace: WorkspaceConfig = {
+    slug,
+    name: input.name.trim(),
+    bundle: bundle.bundle,
+    ingestTokenHash: hashToken(token),
+    createdAt: new Date().toISOString(),
+  };
+  writeConfig({ ...cfg, workspaces: [...cfg.workspaces, workspace] });
+  return { ok: true, slug, token, mcpCommand: buildMcpCommand(slug, token) };
+}
+
+export async function deleteWorkspace(slug: string): Promise<{ ok: boolean; error?: string }> {
+  if (!(await isAdmin())) return { ok: false, error: 'admin login required' };
+  const cfg = readConfig();
+  if (!cfg) return { ok: false, error: 'not configured' };
+  if (!getWorkspace(slug)) return { ok: false, error: 'unknown workspace' };
+  if (cfg.workspaces.length <= 1) return { ok: false, error: 'cannot delete the last workspace' };
+  const remaining = cfg.workspaces.filter((w) => w.slug !== slug);
+  const defaultWorkspace = cfg.defaultWorkspace === slug ? remaining[0]!.slug : cfg.defaultWorkspace;
+  writeConfig({ ...cfg, workspaces: remaining, defaultWorkspace });
+  resetService(slug);
+  return { ok: true };
+}
+
+export async function setDefaultWorkspace(slug: string): Promise<{ ok: boolean; error?: string }> {
+  if (!(await isAdmin())) return { ok: false, error: 'admin login required' };
+  const cfg = readConfig();
+  if (!cfg) return { ok: false, error: 'not configured' };
+  if (!getWorkspace(slug)) return { ok: false, error: 'unknown workspace' };
+  writeConfig({ ...cfg, defaultWorkspace: slug });
   return { ok: true };
 }
