@@ -21,7 +21,7 @@ describe('AddWorkspacePanel', () => {
       expect.objectContaining({ name: 'Labs', bundleSource: 'example' }),
     ));
     expect(await screen.findByText('WSTOKEN42')).toBeTruthy();
-    expect(screen.getByText(/\/w\/labs\/api\/mcp/)).toBeTruthy();
+    expect(await screen.findByText(/\/w\/labs\/api\/mcp/)).toBeTruthy(); // command lives in AgentSnippets (renders after mount)
     expect(refresh).toHaveBeenCalled(); // list re-renders behind the panel
   });
 
