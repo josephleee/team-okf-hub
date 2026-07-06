@@ -285,7 +285,9 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-setup__nav .okf-setup__back { background: transparent; color: #2563eb; border: 1px solid #d7deea; }
 .okf-setup__summary { border: 1px dashed #d7deea; border-radius: 8px; padding: 10px 12px; font-size: 0.86rem; color: #5b6b82; }
 .okf-setup__copyrow { display: flex; align-items: flex-start; gap: 8px; }
-.okf-setup__copyrow pre { flex: 1; margin: 0; }
+/* min-width:0 lets the flex item shrink; overflow-x keeps a long one-line command
+   (e.g. the mcp add command) scrolling inside its box instead of spilling past the viewport. */
+.okf-setup__copyrow pre { flex: 1; min-width: 0; margin: 0; overflow-x: auto; background: #0f2747; color: #e7edf7; padding: 12px; border-radius: 8px; font-size: 0.82rem; line-height: 1.5; }
 .okf-setup__copy { align-self: flex-start; padding: 6px 12px; font-size: 0.8rem; }
 .okf-setup__lede { color: #5b6b82; font-size: 0.95rem; margin: 2px 0 8px; }
 .okf-setup__note { color: #5b6b82; font-size: 0.8rem; margin-top: 8px; }
