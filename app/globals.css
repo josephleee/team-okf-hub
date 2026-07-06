@@ -298,3 +298,7 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-setup__badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.68rem; background: #eef2fb; color: #2563eb; border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
 .okf-setup__ws-actions { flex-direction: row; align-items: center; gap: 10px; }
 .okf-setup__danger { background: #b42318 !important; }
+
+/* --- Agent snippets (verify-it-now blocks) --- */
+.okf-snippets { display: flex; flex-direction: column; gap: 6px; }
+.okf-snippets h3 { margin: 10px 0 2px; font-size: 0.82rem; color: #2563eb; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
