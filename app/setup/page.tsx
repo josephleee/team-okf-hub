@@ -62,7 +62,7 @@ export default async function SetupPage() {
           </form>
           <RotateTokenPanel onRotate={rotateToken.bind(null, ws.slug)} slug={ws.slug} />
           <form className="okf-setup__row" action={async (fd: FormData) => { 'use server'; await changeBundle(ws.slug, { source: String(fd.get('source') ?? 'example') as 'example' | 'local' | 'git', localPath: String(fd.get('localPath') ?? ''), gitUrl: String(fd.get('gitUrl') ?? '') }); }}>
-            <p className="okf-setup__hint">example = built-in sample data · local = a folder on this server (needs a .md file) · git = clone a public https:// repo.</p>
+            <p className="okf-setup__hint">example = built-in sample data · local = absolute folder path on this server (no ~; needs a top-level .md) · git = clone a public https:// repo.</p>
             <label>Bundle source
               <select name="source" defaultValue={ws.bundle.source}>
                 <option value="example">example</option>

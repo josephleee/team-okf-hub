@@ -97,7 +97,7 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
             {bundleSource === 'local' && (
               <>
                 <input aria-label="local path" value={localPath} onChange={(e) => setLocalPath(e.target.value)} placeholder="/srv/okf-bundle" />
-                <p className="okf-setup__hint">A folder already on this server. Must contain at least one .md file.</p>
+                <p className="okf-setup__hint">Absolute path on the server — ~ is not expanded. Needs at least one .md file at its top level. e.g. /srv/okf-bundle.</p>
               </>
             )}
             <label><input type="radio" name="src" checked={bundleSource === 'git'} onChange={() => setBundleSource('git')} /> Clone a public git URL</label>

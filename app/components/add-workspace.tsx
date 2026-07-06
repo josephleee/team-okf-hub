@@ -63,7 +63,10 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
         <label><input type="radio" name="add-src" checked={bundleSource === 'example'} onChange={() => setBundleSource('example')} /> Use the example bundle</label>
         <label><input type="radio" name="add-src" checked={bundleSource === 'local'} onChange={() => setBundleSource('local')} /> Local directory path</label>
         {bundleSource === 'local' && (
-          <input aria-label="new local path" value={localPath} onChange={(e) => setLocalPath(e.target.value)} placeholder="/srv/okf-bundle" />
+          <>
+            <input aria-label="new local path" value={localPath} onChange={(e) => setLocalPath(e.target.value)} placeholder="/srv/okf-bundle" />
+            <p className="okf-setup__hint">Absolute path on the server — ~ is not expanded. Needs at least one .md file at its top level. e.g. /srv/okf-bundle.</p>
+          </>
         )}
         <label><input type="radio" name="add-src" checked={bundleSource === 'git'} onChange={() => setBundleSource('git')} /> Clone a public git URL</label>
         {bundleSource === 'git' && (
