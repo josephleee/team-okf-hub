@@ -1,4 +1,4 @@
-import { readConfig } from './config';
+import { getWorkspace } from './config';
 import { verifyToken } from './secrets';
 
 export type AuthResult = { ok: true } | { ok: false; status: number; message: string };
@@ -22,9 +22,9 @@ export function checkIngestAuth(header: string | null): AuthResult {
       ? { ok: true }
       : { ok: false, status: 401, message: 'invalid or missing bearer token' };
   }
-  const cfg = readConfig();
-  if (cfg?.ingestTokenHash) {
-    return token && verifyToken(token, cfg.ingestTokenHash)
+  const ws = getWorkspace();
+  if (ws?.ingestTokenHash) {
+    return token && verifyToken(token, ws.ingestTokenHash)
       ? { ok: true }
       : { ok: false, status: 401, message: 'invalid or missing bearer token' };
   }
