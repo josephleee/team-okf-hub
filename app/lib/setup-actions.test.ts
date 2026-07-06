@@ -48,7 +48,7 @@ describe('completeSetup', () => {
     expect(ws.bundle).toEqual({ source: 'example', path: 'bundles/example' });
     expect(verifyToken(res.token, ws.ingestTokenHash)).toBe(true); // token matches stored hash
     expect(cfg.adminPasswordHash.startsWith('scrypt$')).toBe(true);
-    expect(res.mcpCommand).toContain('/w/acme/api/mcp');
+    expect(res.slug).toBe('acme');
   });
 
   it('rejects a short admin password and does not write config', async () => {
@@ -82,7 +82,6 @@ describe('workspace management (admin)', () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     expect(res.slug).toBe('acme-2'); // 'acme' is taken by the first workspace
-    expect(res.mcpCommand).toContain('/w/acme-2/api/mcp');
     const cfg = readConfig()!;
     expect(cfg.workspaces.length).toBe(2);
     expect(verifyToken(res.token, cfg.workspaces[1]!.ingestTokenHash)).toBe(true);

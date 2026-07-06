@@ -5,7 +5,7 @@ import { CopyButton } from './copy-button';
 import { AgentSnippets } from './agent-snippets';
 
 type AddInput = { name: string; bundleSource: 'example' | 'local' | 'git'; localPath?: string; gitUrl?: string };
-type AddResult = { ok: true; slug: string; token: string; mcpCommand: string } | { ok: false; error: string };
+type AddResult = { ok: true; slug: string; token: string } | { ok: false; error: string };
 
 export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promise<AddResult> }) {
   const router = useRouter();
@@ -15,7 +15,7 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
   const [gitUrl, setGitUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ slug: string; token: string; mcpCommand: string } | null>(null);
+  const [done, setDone] = useState<{ slug: string; token: string } | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +24,7 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
     try {
       const res = await onAdd({ name, bundleSource, localPath, gitUrl });
       if (res.ok) {
-        setDone({ slug: res.slug, token: res.token, mcpCommand: res.mcpCommand });
+        setDone({ slug: res.slug, token: res.token });
         router.refresh();
       } else {
         setError(res.error);

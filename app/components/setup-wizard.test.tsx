@@ -5,7 +5,7 @@ import { SetupWizard } from './setup-wizard';
 
 afterEach(cleanup);
 
-const okComplete = () => vi.fn(async () => ({ ok: true as const, slug: 'acme', token: 'TESTTOKEN123', mcpCommand: 'claude mcp add ... Bearer TESTTOKEN123' }));
+const okComplete = () => vi.fn(async () => ({ ok: true as const, slug: 'acme', token: 'TESTTOKEN123' }));
 
 describe('SetupWizard stepper', () => {
   it('gates Next on step 1 until a workspace name is entered', () => {
@@ -99,7 +99,7 @@ describe('SetupWizard completion screen', () => {
   it('shows token + mcp with Copy buttons and a copied state', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
-    const onComplete = vi.fn(async () => ({ ok: true as const, slug: 'acme', token: 'TESTTOKEN123', mcpCommand: 'claude mcp add ... Bearer TESTTOKEN123' }));
+    const onComplete = vi.fn(async () => ({ ok: true as const, slug: 'acme', token: 'TESTTOKEN123' }));
     render(<SetupWizard onComplete={onComplete} />);
     fireEvent.change(screen.getByLabelText(/workspace name/i), { target: { value: 'Acme' } });
     fireEvent.click(screen.getByRole('button', { name: /next/i }));

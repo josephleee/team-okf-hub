@@ -4,7 +4,7 @@ import type { SetupInput } from '../lib/setup-actions';
 import { CopyButton } from './copy-button';
 import { AgentSnippets } from './agent-snippets';
 
-type Result = { ok: true; slug: string; token: string; mcpCommand: string } | { ok: false; error: string };
+type Result = { ok: true; slug: string; token: string } | { ok: false; error: string };
 type BundleSource = 'example' | 'local' | 'git';
 
 const STEP_TITLES = ['Name this workspace', 'Choose a knowledge bundle', 'Set an admin password'];
