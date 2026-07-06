@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, statSync, writeFileSync, readFileSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, rmSync, statSync, writeFileSync, readFileSync, mkdirSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -86,6 +86,25 @@ describe('v1 → v2 migration', () => {
     // persisted back to disk as v2
     const onDisk = JSON.parse(readFileSync(join(dir, 'config.json'), 'utf8'));
     expect(onDisk.version).toBe(2);
+  });
+
+  it('stays configured in memory when the migration cannot be persisted', () => {
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, 'config.json');
+    writeFileSync(file, JSON.stringify({
+      version: 1, workspaceName: 'Acme Data', bundle: { source: 'local', path: '/srv/b' },
+      ingestTokenHash: 'a'.repeat(64), adminPasswordHash: 'scrypt$x$y', sessionSecret: 'z'.repeat(64),
+      setupComplete: true, createdAt: '2026-07-01T00:00:00Z',
+    }));
+    chmodSync(file, 0o400); // owner read-only → writeConfig throws
+    try {
+      const c = readConfig();
+      expect(c?.version).toBe(2);
+      expect(c?.workspaces[0]?.slug).toBe('acme-data');
+      expect(setupState()).toBe('file-configured'); // NOT first-run
+    } finally {
+      chmodSync(file, 0o600);
+    }
   });
 });
 

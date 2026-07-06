@@ -83,7 +83,12 @@ export function readConfig(): OkfConfig | null {
   try {
     const parsed = JSON.parse(readFileSync(configPath(), 'utf8')) as { version?: number };
     if (parsed.version === 1) {
-      writeConfig(migrateV1(parsed as unknown as OkfConfigV1)); // persist the migration once; sets cache
+      const migrated = migrateV1(parsed as unknown as OkfConfigV1);
+      try {
+        writeConfig(migrated); // persist the migration once; sets cache
+      } catch {
+        cache = migrated; // persist failed (e.g. read-only fs) — stay configured in memory
+      }
     } else {
       cache = parsed as unknown as OkfConfig;
     }
