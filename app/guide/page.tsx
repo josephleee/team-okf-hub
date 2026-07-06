@@ -2,16 +2,10 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { readConfig, setupState } from '../../lib/config';
 import { buildAgentCommands } from '../../lib/agent-commands';
+import { originFromHeaders } from '../../lib/request-origin';
 import { CopyButton } from '../components/copy-button';
 
 export const dynamic = 'force-dynamic';
-
-async function requestOrigin(): Promise<string> {
-  const h = await headers();
-  const proto = (h.get('x-forwarded-proto') ?? 'http').split(',')[0]!.trim();
-  const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000';
-  return `${proto}://${host}`;
-}
 
 function CommandRow({ label, cmd, note }: { label: string; cmd: string; note?: string }) {
   return (
@@ -27,7 +21,7 @@ function CommandRow({ label, cmd, note }: { label: string; cmd: string; note?: s
 
 export default async function GuidePage() {
   if (setupState() === 'first-run') redirect('/setup');
-  const origin = await requestOrigin();
+  const origin = originFromHeaders(await headers());
   const cfg = readConfig();
   const workspaces = cfg?.workspaces ?? [];
   const defaultSlug = cfg?.defaultWorkspace ?? null;
