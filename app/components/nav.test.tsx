@@ -22,4 +22,9 @@ describe('Nav', () => {
     render(<Nav />);
     expect(screen.getByRole('link', { name: /settings/i }).getAttribute('href')).toBe('/setup');
   });
+
+  it('links to the guide', () => {
+    render(<Nav />);
+    expect(screen.getByRole('link', { name: /^Guide$/ }).getAttribute('href')).toBe('/guide');
+  });
 });
