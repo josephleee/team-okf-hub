@@ -174,7 +174,7 @@ function SetupDone({ slug, token }: { slug: string; token: string }) {
       </div>
 
       <h2>What&rsquo;s next</h2>
-      <p><a href="/">Browse the hub →</a> · <a href="/work">Work timeline →</a> · <a href="/setup">Manage settings →</a></p>
+      <p><a href="/">Browse the hub →</a> · <a href="/work">Work timeline →</a> · <a href="/guide">Read the guide →</a> · <a href="/setup">Manage settings →</a></p>
     </section>
   );
 }
