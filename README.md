@@ -203,7 +203,7 @@ token (which invalidates the old one immediately and shows the new one once).
 One hub can serve **several independent workspaces** — each with its own name, bundle,
 search index, ingestion token, and URLs:
 
-- Browser: `/w/<slug>` (default workspace also at `/`)
+- Browser: the default workspace at `/` (per-workspace pages at `/w/<slug>` arrive in M5b)
 - REST: `/w/<slug>/api/v1/…` · MCP: `/w/<slug>/api/mcp`
 - Legacy URLs (`/api/v1/*`, `/api/mcp`) keep serving the **default** workspace, so
   existing agents keep working unchanged.
