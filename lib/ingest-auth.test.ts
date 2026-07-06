@@ -30,6 +30,16 @@ const cfgWith = (tokenHash: string): OkfConfig => ({
   createdAt: '2026-07-06T00:00:00Z',
 });
 
+const cfgTwo = (hashA: string, hashB: string): OkfConfig => ({
+  version: 2, adminPasswordHash: 'scrypt$a$b', sessionSecret: 'c'.repeat(64),
+  setupComplete: true, defaultWorkspace: 'a',
+  workspaces: [
+    { slug: 'a', name: 'A', bundle: { source: 'example', path: 'bundles/example' }, ingestTokenHash: hashA, createdAt: '2026-07-06T00:00:00Z' },
+    { slug: 'b', name: 'B', bundle: { source: 'example', path: 'bundles/example' }, ingestTokenHash: hashB, createdAt: '2026-07-06T00:00:00Z' },
+  ],
+  createdAt: '2026-07-06T00:00:00Z',
+});
+
 describe('checkIngestAuth', () => {
   it('503 when neither env token nor config is present', () => {
     const result = checkIngestAuth('Bearer x');
@@ -52,5 +62,25 @@ describe('checkIngestAuth', () => {
     process.env.OKF_INGEST_TOKEN = 'envwins';
     writeConfig(cfgWith(hashToken('other')));
     expect(checkIngestAuth('Bearer envwins')).toEqual({ ok: true });
+  });
+});
+
+describe('checkIngestAuth per workspace', () => {
+  it('verifies against the addressed workspace and isolates tokens', () => {
+    const tokenA = generateToken();
+    const tokenB = generateToken();
+    writeConfig(cfgTwo(hashToken(tokenA), hashToken(tokenB)));
+    expect(checkIngestAuth(`Bearer ${tokenA}`, 'a')).toEqual({ ok: true });
+    expect(checkIngestAuth(`Bearer ${tokenB}`, 'b')).toEqual({ ok: true });
+    expect((checkIngestAuth(`Bearer ${tokenA}`, 'b') as { status: number }).status).toBe(401); // cross-workspace → 401
+    expect(checkIngestAuth(`Bearer ${tokenA}`)).toEqual({ ok: true }); // omitted slug → default (a)
+    expect((checkIngestAuth(`Bearer ${tokenA}`, 'nope') as { status: number }).status).toBe(503); // unknown ws → unconfigured
+  });
+  it('env token is valid on any workspace (env wins)', () => {
+    process.env.OKF_INGEST_TOKEN = 'hubwide';
+    writeConfig(cfgTwo('x'.repeat(64), 'y'.repeat(64)));
+    expect(checkIngestAuth('Bearer hubwide', 'a')).toEqual({ ok: true });
+    expect(checkIngestAuth('Bearer hubwide', 'b')).toEqual({ ok: true });
+    expect((checkIngestAuth('Bearer nope', 'b') as { status: number }).status).toBe(401);
   });
 });

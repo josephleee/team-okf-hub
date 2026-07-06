@@ -14,7 +14,7 @@ function bearer(header: string | null): string | null {
   return header && header.startsWith('Bearer ') ? header.slice(7) : null;
 }
 
-export function checkIngestAuth(header: string | null): AuthResult {
+export function checkIngestAuth(header: string | null, slug?: string): AuthResult {
   const token = bearer(header);
   const envToken = process.env.OKF_INGEST_TOKEN;
   if (envToken) {
@@ -22,7 +22,7 @@ export function checkIngestAuth(header: string | null): AuthResult {
       ? { ok: true }
       : { ok: false, status: 401, message: 'invalid or missing bearer token' };
   }
-  const ws = getWorkspace();
+  const ws = getWorkspace(slug);
   if (ws?.ingestTokenHash) {
     return token && verifyToken(token, ws.ingestTokenHash)
       ? { ok: true }
