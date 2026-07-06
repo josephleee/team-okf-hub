@@ -108,9 +108,10 @@ describe('SetupWizard completion screen', () => {
     fireEvent.click(screen.getByRole('button', { name: /finish setup/i }));
 
     expect(await screen.findByText('TESTTOKEN123')).toBeTruthy();
-    const copyButtons = await screen.findAllByRole('button', { name: /copy/i });
+    // AgentSnippets renders its commands after mount — wait for one before counting copy buttons.
+    expect(await screen.findByText(/okf-acme http:\/\/localhost:3000\/w\/acme\/api\/mcp/)).toBeTruthy();
+    const copyButtons = screen.getAllByRole('button', { name: /copy/i });
     expect(copyButtons.length).toBeGreaterThanOrEqual(4); // token + 3 snippet rows
-    expect(screen.getByText(/okf-acme http:\/\/localhost:3000\/w\/acme\/api\/mcp/)).toBeTruthy();
     fireEvent.click(copyButtons[0]!);
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('TESTTOKEN123'));
     expect(await screen.findByText(/copied/i)).toBeTruthy();
