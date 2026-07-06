@@ -198,6 +198,24 @@ token (which invalidates the old one immediately and shows the new one once).
 > token first. Bundle cloning refuses loopback/link-local/private hosts, but is only
 > a literal-address guard — keep bundle git URLs to hosts you trust.
 
+### Multiple workspaces (M5)
+
+One hub can serve **several independent workspaces** — each with its own name, bundle,
+search index, ingestion token, and URLs:
+
+- Browser: `/w/<slug>` (default workspace also at `/`)
+- REST: `/w/<slug>/api/v1/…` · MCP: `/w/<slug>/api/mcp`
+- Legacy URLs (`/api/v1/*`, `/api/mcp`) keep serving the **default** workspace, so
+  existing agents keep working unchanged.
+
+Admins manage workspaces in **Settings** (`/setup`): add a workspace (its token and
+per-workspace `claude mcp add …` command are shown once), rename (display name only —
+slugs are permanent), change bundle, rotate its token, set the default, or delete it
+(the last workspace cannot be deleted; bundle files on disk are kept). Tokens are
+workspace-scoped: workspace A's token gets `401` on workspace B's endpoints.
+`OKF_INGEST_TOKEN` (env) still overrides everything hub-wide, and `OKF_BUNDLE_DIR`
+overrides the default workspace's bundle.
+
 ### Register the MCP server in Claude Code
 
 ```bash
