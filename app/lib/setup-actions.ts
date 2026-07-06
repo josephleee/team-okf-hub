@@ -46,7 +46,7 @@ function buildMcpCommand(slug: string, token: string): string {
 
 export async function completeSetup(
   input: SetupInput,
-): Promise<{ ok: true; token: string; mcpCommand: string } | { ok: false; error: string }> {
+): Promise<{ ok: true; slug: string; token: string; mcpCommand: string } | { ok: false; error: string }> {
   if (setupState() !== 'first-run') return { ok: false, error: 'setup already completed' };
   if (!input.workspaceName?.trim()) return { ok: false, error: 'workspace name is required' };
   if (!input.adminPassword || input.adminPassword.length < 8) {
@@ -76,7 +76,7 @@ export async function completeSetup(
   };
   writeConfig(config);
   resetService();
-  return { ok: true, token, mcpCommand: buildMcpCommand(slug, token) };
+  return { ok: true, slug, token, mcpCommand: buildMcpCommand(slug, token) };
 }
 
 export async function adminLogin(password: string): Promise<{ ok: boolean; error?: string }> {

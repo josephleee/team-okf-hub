@@ -37,6 +37,7 @@ describe('completeSetup', () => {
     });
     expect(res.ok).toBe(true);
     if (!res.ok) return;
+    expect(res.slug).toBe('acme');
     const cfg = readConfig()!;
     expect(cfg.version).toBe(2);
     expect(cfg.setupComplete).toBe(true);

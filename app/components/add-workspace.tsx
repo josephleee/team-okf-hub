@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CopyButton } from './copy-button';
+import { AgentSnippets } from './agent-snippets';
 
 type AddInput = { name: string; bundleSource: 'example' | 'local' | 'git'; localPath?: string; gitUrl?: string };
 type AddResult = { ok: true; slug: string; token: string; mcpCommand: string } | { ok: false; error: string };
@@ -44,11 +45,8 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
           <pre className="okf-setup__token"><code>{done.token}</code></pre>
           <CopyButton text={done.token} />
         </div>
-        <p className="okf-setup__hint">Connect an agent to THIS workspace:</p>
-        <div className="okf-setup__copyrow">
-          <pre><code>{done.mcpCommand}</code></pre>
-          <CopyButton text={done.mcpCommand} />
-        </div>
+        <h3>Try it now — this workspace only</h3>
+        <AgentSnippets slug={done.slug} token={done.token} />
       </section>
     );
   }

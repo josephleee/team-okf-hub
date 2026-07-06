@@ -5,7 +5,7 @@ import { SetupWizard } from './setup-wizard';
 
 afterEach(cleanup);
 
-const okComplete = () => vi.fn(async () => ({ ok: true as const, token: 'TESTTOKEN123', mcpCommand: 'claude mcp add ... Bearer TESTTOKEN123' }));
+const okComplete = () => vi.fn(async () => ({ ok: true as const, slug: 'acme', token: 'TESTTOKEN123', mcpCommand: 'claude mcp add ... Bearer TESTTOKEN123' }));
 
 describe('SetupWizard stepper', () => {
   it('gates Next on step 1 until a workspace name is entered', () => {
@@ -99,7 +99,7 @@ describe('SetupWizard completion screen', () => {
   it('shows token + mcp with Copy buttons and a copied state', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
-    const onComplete = vi.fn(async () => ({ ok: true as const, token: 'TESTTOKEN123', mcpCommand: 'claude mcp add ... Bearer TESTTOKEN123' }));
+    const onComplete = vi.fn(async () => ({ ok: true as const, slug: 'acme', token: 'TESTTOKEN123', mcpCommand: 'claude mcp add ... Bearer TESTTOKEN123' }));
     render(<SetupWizard onComplete={onComplete} />);
     fireEvent.change(screen.getByLabelText(/workspace name/i), { target: { value: 'Acme' } });
     fireEvent.click(screen.getByRole('button', { name: /next/i }));
@@ -109,7 +109,8 @@ describe('SetupWizard completion screen', () => {
 
     expect(await screen.findByText('TESTTOKEN123')).toBeTruthy();
     const copyButtons = await screen.findAllByRole('button', { name: /copy/i });
-    expect(copyButtons.length).toBeGreaterThanOrEqual(2); // token + mcp command
+    expect(copyButtons.length).toBeGreaterThanOrEqual(4); // token + 3 snippet rows
+    expect(screen.getByText(/okf-acme http:\/\/localhost:3000\/w\/acme\/api\/mcp/)).toBeTruthy();
     fireEvent.click(copyButtons[0]!);
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('TESTTOKEN123'));
     expect(await screen.findByText(/copied/i)).toBeTruthy();
