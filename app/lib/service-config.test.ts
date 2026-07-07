@@ -15,9 +15,10 @@ beforeAll(() => {
   delete process.env.OKF_BUNDLE_DIR;
   invalidateConfigCache();
   const cfg: OkfConfig = {
-    version: 1, workspaceName: 'W', bundle: { source: 'local', path: bundleDir },
-    ingestTokenHash: 'a'.repeat(64), adminPasswordHash: 'scrypt$a$b', sessionSecret: 'c'.repeat(64),
-    setupComplete: true, createdAt: '2026-07-01T00:00:00Z',
+    version: 2, adminPasswordHash: 'scrypt$a$b', sessionSecret: 'c'.repeat(64),
+    setupComplete: true, defaultWorkspace: 'w',
+    workspaces: [{ slug: 'w', name: 'W', bundle: { source: 'local', path: bundleDir }, ingestTokenHash: 'a'.repeat(64), createdAt: '2026-07-06T00:00:00Z' }],
+    createdAt: '2026-07-06T00:00:00Z',
   };
   writeConfig(cfg);
 });

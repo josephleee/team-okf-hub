@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { WorkView } from '../lib/data';
+import { WorkEmptyHint } from './work-empty-hint';
 
 export function WorkTimeline({ view }: { view: WorkView }) {
   const { filter, groups, total } = view;
@@ -17,10 +18,14 @@ export function WorkTimeline({ view }: { view: WorkView }) {
         ) : null}
       </header>
       {groups.length === 0 ? (
-        <p className="okf-work-empty">
-          No work records yet. Agents record work via the MCP tool <code>okf_record_work</code>{' '}
-          or <code>POST /api/v1/work</code>.
-        </p>
+        <div className="okf-work-empty">
+          <p>
+            No work records yet. Agents record work via the MCP tool <code>okf_record_work</code>{' '}
+            or <code>POST /api/v1/work</code> — try it now (replace <code>&lt;TOKEN&gt;</code> with your ingestion token):
+          </p>
+          <WorkEmptyHint />
+          <p><a href="/guide">Read the guide →</a></p>
+        </div>
       ) : (
         groups.map((g) => (
           <div key={g.date} className="okf-work-group">

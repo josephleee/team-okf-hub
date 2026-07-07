@@ -1,9 +1,13 @@
 'use client';
 import { useState } from 'react';
+import { CopyButton } from './copy-button';
+import { AgentSnippets } from './agent-snippets';
 
 type RotateResult = { ok: boolean; token?: string; error?: string };
 
-export function RotateTokenPanel({ onRotate }: { onRotate: () => Promise<RotateResult> }) {
+export function RotateTokenPanel({
+  onRotate, slug,
+}: { onRotate: () => Promise<RotateResult>; slug: string }) {
   const [busy, setBusy] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +32,12 @@ export function RotateTokenPanel({ onRotate }: { onRotate: () => Promise<RotateR
       {token && (
         <>
           <p className="okf-setup__warn">Copy the new token now — it will not be shown again.</p>
-          <pre className="okf-setup__token"><code>{token}</code></pre>
+          <div className="okf-setup__copyrow">
+            <pre className="okf-setup__token"><code>{token}</code></pre>
+            <CopyButton text={token} />
+          </div>
+          <p className="okf-setup__hint">Update your agent: re-run the connect command below with the new token.</p>
+          <AgentSnippets slug={slug} token={token} />
         </>
       )}
       {error && <p className="okf-setup__error" role="alert">{error}</p>}

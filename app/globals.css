@@ -235,6 +235,7 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-editor__preview { border: 1px dashed var(--okf-border); border-radius: var(--okf-radius); padding: 12px 14px; max-height: 320px; overflow: auto; }
 
 /* --- Work timeline --- */
+.okf-work { max-width: 760px; margin: 0 auto; width: 100%; padding: 34px 32px 60px; }
 .okf-work-timeline { display: flex; flex-direction: column; gap: 20px; }
 .okf-work-header { display: flex; align-items: baseline; gap: 12px; }
 .okf-work-count { color: var(--okf-muted, #5b6b82); font-size: 0.85rem; }
@@ -251,14 +252,59 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-work-artifacts { margin: 0; padding-left: 18px; font-size: 0.8rem; }
 
 /* --- Setup wizard --- */
-.okf-setup { max-width: 560px; display: flex; flex-direction: column; gap: 14px; }
+.okf-setup { max-width: 600px; margin: 0 auto; width: 100%; padding: 34px 28px 60px; display: flex; flex-direction: column; gap: 14px; }
+/* When the page <main> and the inner form/section both carry .okf-setup, only the outer one pads + centers. */
+.okf-setup .okf-setup { max-width: none; margin: 0; padding: 0; width: 100%; }
 .okf-setup label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; }
-.okf-setup input[type="text"], .okf-setup input:not([type]), .okf-setup input[type="password"] { padding: 8px 10px; border: 1px solid var(--okf-border, #d7deea); border-radius: 8px; font: inherit; }
+.okf-setup input[type="text"], .okf-setup input:not([type]), .okf-setup input[type="password"], .okf-setup select { padding: 8px 10px; border: 1px solid var(--okf-border, #d7deea); border-radius: 8px; font: inherit; background: #fff; width: 100%; }
+.okf-setup select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235b6b82' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; cursor: pointer; }
 .okf-setup__bundle { border: 1px solid var(--okf-border, #d7deea); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
 .okf-setup__bundle legend { font-size: 0.8rem; color: var(--okf-muted, #5b6b82); padding: 0 6px; }
+/* Radio choices read inline (control then label), not stacked like the field labels above. */
+.okf-setup__bundle label { flex-direction: row; align-items: center; gap: 8px; }
+.okf-setup__bundle input[type="radio"] { width: auto; margin: 0; }
 .okf-setup__error { color: #b42318; }
 .okf-setup__warn { color: var(--okf-warn, #9a6a1f); font-weight: 600; }
 .okf-setup__token { background: var(--okf-ink, #0f2747); color: #e7edf7; padding: 12px; border-radius: 8px; word-break: break-all; }
-.okf-setup__row { border-top: 1px dashed var(--okf-border, #d7deea); padding-top: 12px; }
+.okf-setup__row { border-top: 1px dashed var(--okf-border, #d7deea); padding-top: 14px; margin-top: 4px; display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+.okf-setup__row input { width: 100%; }
 .okf-setup button { align-self: flex-start; padding: 8px 16px; border-radius: 8px; border: 0; background: var(--okf-accent, #2563eb); color: #fff; font-weight: 600; cursor: pointer; }
 .okf-setup button:disabled { opacity: .6; cursor: default; }
+
+/* --- Guided setup wizard --- */
+.okf-setup__steps { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.okf-setup__dot { width: 10px; height: 10px; border-radius: 50%; background: #d7deea; }
+.okf-setup__dot.is-current { background: #2563eb; }
+.okf-setup__dot.is-done { background: #0f7b46; }
+.okf-setup__steplabel { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem; color: #5b6b82; margin-left: 6px; }
+.okf-setup__help { background: #eef2fb; border-radius: 10px; padding: 10px 14px; font-size: 0.86rem; color: #0f2747; }
+.okf-setup__help p { margin: 3px 0; }
+.okf-setup__help b { color: #2563eb; }
+.okf-setup__hint { font-size: 0.8rem; color: #5b6b82; margin: 2px 0 6px; }
+.okf-setup__nav { display: flex; gap: 10px; margin-top: 6px; }
+.okf-setup__nav .okf-setup__back { background: transparent; color: #2563eb; border: 1px solid #d7deea; }
+.okf-setup__summary { border: 1px dashed #d7deea; border-radius: 8px; padding: 10px 12px; font-size: 0.86rem; color: #5b6b82; }
+.okf-setup__copyrow { display: flex; align-items: flex-start; gap: 8px; }
+/* min-width:0 lets the flex item shrink; overflow-x keeps a long one-line command
+   (e.g. the mcp add command) scrolling inside its box instead of spilling past the viewport. */
+.okf-setup__copyrow pre { flex: 1; min-width: 0; margin: 0; overflow-x: auto; background: #0f2747; color: #e7edf7; padding: 12px; border-radius: 8px; font-size: 0.82rem; line-height: 1.5; }
+.okf-setup__copy { align-self: flex-start; padding: 6px 12px; font-size: 0.8rem; }
+.okf-setup__lede { color: #5b6b82; font-size: 0.95rem; margin: 2px 0 8px; }
+.okf-setup__note { color: #5b6b82; font-size: 0.8rem; margin-top: 8px; }
+
+/* --- Workspace management --- */
+.okf-setup__ws { border: 1px solid #d7deea; border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.okf-setup__ws-head h2 { margin: 0; font-size: 1.05rem; }
+.okf-setup__badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.68rem; background: #eef2fb; color: #2563eb; border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
+.okf-setup__ws-actions { flex-direction: row; align-items: center; gap: 10px; }
+.okf-setup__danger { background: #b42318 !important; }
+
+/* --- Agent snippets (verify-it-now blocks) --- */
+.okf-snippets { display: flex; flex-direction: column; gap: 6px; }
+.okf-snippets h3 { margin: 10px 0 2px; font-size: 0.82rem; color: #2563eb; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* --- Guide page --- */
+.okf-guide { max-width: 720px; }
+.okf-guide__table { border-collapse: collapse; font-size: 0.85rem; }
+.okf-guide__table td { border-top: 1px dashed #d7deea; padding: 8px 12px 8px 0; vertical-align: top; }
+.okf-guide__table td:first-child { white-space: nowrap; color: #b42318; }
