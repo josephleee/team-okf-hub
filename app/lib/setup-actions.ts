@@ -40,13 +40,9 @@ async function isSecureRequest(): Promise<boolean> {
   return (h.get('x-forwarded-proto') ?? '').split(',')[0]?.trim() === 'https';
 }
 
-function buildMcpCommand(slug: string, token: string): string {
-  return `claude mcp add --transport http okf-${slug} http://localhost:3000/w/${slug}/api/mcp --header "Authorization: Bearer ${token}"`;
-}
-
 export async function completeSetup(
   input: SetupInput,
-): Promise<{ ok: true; token: string; mcpCommand: string } | { ok: false; error: string }> {
+): Promise<{ ok: true; slug: string; token: string } | { ok: false; error: string }> {
   if (setupState() !== 'first-run') return { ok: false, error: 'setup already completed' };
   if (!input.workspaceName?.trim()) return { ok: false, error: 'workspace name is required' };
   if (!input.adminPassword || input.adminPassword.length < 8) {
@@ -76,7 +72,7 @@ export async function completeSetup(
   };
   writeConfig(config);
   resetService();
-  return { ok: true, token, mcpCommand: buildMcpCommand(slug, token) };
+  return { ok: true, slug, token };
 }
 
 export async function adminLogin(password: string): Promise<{ ok: boolean; error?: string }> {
@@ -134,7 +130,7 @@ export async function changeBundle(
 
 export async function addWorkspace(
   input: { name: string; bundleSource: 'example' | 'local' | 'git'; localPath?: string; gitUrl?: string },
-): Promise<{ ok: true; slug: string; token: string; mcpCommand: string } | { ok: false; error: string }> {
+): Promise<{ ok: true; slug: string; token: string } | { ok: false; error: string }> {
   if (!(await isAdmin())) return { ok: false, error: 'admin login required' };
   const cfg = readConfig();
   if (!cfg) return { ok: false, error: 'not configured' };
@@ -151,7 +147,7 @@ export async function addWorkspace(
     createdAt: new Date().toISOString(),
   };
   writeConfig({ ...cfg, workspaces: [...cfg.workspaces, workspace] });
-  return { ok: true, slug, token, mcpCommand: buildMcpCommand(slug, token) };
+  return { ok: true, slug, token };
 }
 
 export async function deleteWorkspace(slug: string): Promise<{ ok: boolean; error?: string }> {

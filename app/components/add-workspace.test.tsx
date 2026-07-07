@@ -12,7 +12,7 @@ afterEach(() => { cleanup(); refresh.mockClear(); });
 describe('AddWorkspacePanel', () => {
   it('creates a workspace and shows the one-time token + mcp command', async () => {
     const onAdd = vi.fn(async () => ({
-      ok: true as const, slug: 'labs', token: 'WSTOKEN42', mcpCommand: 'claude mcp add ... /w/labs/api/mcp ... Bearer WSTOKEN42',
+      ok: true as const, slug: 'labs', token: 'WSTOKEN42',
     }));
     render(<AddWorkspacePanel onAdd={onAdd} />);
     fireEvent.change(screen.getByLabelText(/new workspace name/i), { target: { value: 'Labs' } });
@@ -21,7 +21,7 @@ describe('AddWorkspacePanel', () => {
       expect.objectContaining({ name: 'Labs', bundleSource: 'example' }),
     ));
     expect(await screen.findByText('WSTOKEN42')).toBeTruthy();
-    expect(screen.getByText(/\/w\/labs\/api\/mcp/)).toBeTruthy();
+    expect(await screen.findByText(/\/w\/labs\/api\/mcp/)).toBeTruthy(); // command lives in AgentSnippets (renders after mount)
     expect(refresh).toHaveBeenCalled(); // list re-renders behind the panel
   });
 

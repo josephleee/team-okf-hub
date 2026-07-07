@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CopyButton } from './copy-button';
+import { AgentSnippets } from './agent-snippets';
 
 type AddInput = { name: string; bundleSource: 'example' | 'local' | 'git'; localPath?: string; gitUrl?: string };
-type AddResult = { ok: true; slug: string; token: string; mcpCommand: string } | { ok: false; error: string };
+type AddResult = { ok: true; slug: string; token: string } | { ok: false; error: string };
 
 export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promise<AddResult> }) {
   const router = useRouter();
@@ -14,7 +15,7 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
   const [gitUrl, setGitUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ slug: string; token: string; mcpCommand: string } | null>(null);
+  const [done, setDone] = useState<{ slug: string; token: string } | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +24,7 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
     try {
       const res = await onAdd({ name, bundleSource, localPath, gitUrl });
       if (res.ok) {
-        setDone({ slug: res.slug, token: res.token, mcpCommand: res.mcpCommand });
+        setDone({ slug: res.slug, token: res.token });
         router.refresh();
       } else {
         setError(res.error);
@@ -44,11 +45,8 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
           <pre className="okf-setup__token"><code>{done.token}</code></pre>
           <CopyButton text={done.token} />
         </div>
-        <p className="okf-setup__hint">Connect an agent to THIS workspace:</p>
-        <div className="okf-setup__copyrow">
-          <pre><code>{done.mcpCommand}</code></pre>
-          <CopyButton text={done.mcpCommand} />
-        </div>
+        <h3>Try it now — this workspace only</h3>
+        <AgentSnippets slug={done.slug} token={done.token} />
       </section>
     );
   }
@@ -65,7 +63,10 @@ export function AddWorkspacePanel({ onAdd }: { onAdd: (input: AddInput) => Promi
         <label><input type="radio" name="add-src" checked={bundleSource === 'example'} onChange={() => setBundleSource('example')} /> Use the example bundle</label>
         <label><input type="radio" name="add-src" checked={bundleSource === 'local'} onChange={() => setBundleSource('local')} /> Local directory path</label>
         {bundleSource === 'local' && (
-          <input aria-label="new local path" value={localPath} onChange={(e) => setLocalPath(e.target.value)} placeholder="/srv/okf-bundle" />
+          <>
+            <input aria-label="new local path" value={localPath} onChange={(e) => setLocalPath(e.target.value)} placeholder="/srv/okf-bundle" />
+            <p className="okf-setup__hint">Absolute path on the server — ~ is not expanded. Needs at least one .md file at its top level. e.g. /srv/okf-bundle.</p>
+          </>
         )}
         <label><input type="radio" name="add-src" checked={bundleSource === 'git'} onChange={() => setBundleSource('git')} /> Clone a public git URL</label>
         {bundleSource === 'git' && (

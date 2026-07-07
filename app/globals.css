@@ -298,3 +298,13 @@ a { color: var(--okf-primary); text-decoration: none; }
 .okf-setup__badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.68rem; background: #eef2fb; color: #2563eb; border-radius: 999px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
 .okf-setup__ws-actions { flex-direction: row; align-items: center; gap: 10px; }
 .okf-setup__danger { background: #b42318 !important; }
+
+/* --- Agent snippets (verify-it-now blocks) --- */
+.okf-snippets { display: flex; flex-direction: column; gap: 6px; }
+.okf-snippets h3 { margin: 10px 0 2px; font-size: 0.82rem; color: #2563eb; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* --- Guide page --- */
+.okf-guide { max-width: 720px; }
+.okf-guide__table { border-collapse: collapse; font-size: 0.85rem; }
+.okf-guide__table td { border-top: 1px dashed #d7deea; padding: 8px 12px 8px 0; vertical-align: top; }
+.okf-guide__table td:first-child { white-space: nowrap; color: #b42318; }
