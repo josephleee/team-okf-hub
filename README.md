@@ -21,9 +21,11 @@ at any time. Your knowledge is never locked into a database.
 
 > **Status: 🟢 Actively developed.** The core is implemented, tested, and running:
 > browse / search / graph (M1), in-browser editing with live validation + sanitized
-> preview (M2a), and the **WorkRecord org-memory** for AI agents over MCP + REST
-> (M3). Still planned: GitHub sign-in + edit→PR (M2b), git-native sync, and Docker
-> packaging. Features below are marked ✅ (shipped) or 🔜 (planned). See
+> preview (M2a), the **WorkRecord org-memory** for AI agents over MCP + REST (M3), a
+> browser-based **setup wizard** (M4a), **multiple independent workspaces** per hub
+> (M5), and an in-app **usage guide** (`/guide`). Still planned: GitHub sign-in +
+> edit→PR (M2b), git-native sync, and Docker packaging. Features below are marked
+> ✅ (shipped) or 🔜 (planned). See
 > [`docs/superpowers/specs/`](docs/superpowers/specs/) for the designs.
 
 ## What is OKF?
@@ -103,6 +105,12 @@ this user prefers"* stays in its own memory (low-friction, untrusted).
   `okf_search`, `okf_get`, `okf_graph`) plus a **REST** API (`/api/v1/*`). REST writes are
   token-gated and REST reads are open; the **MCP endpoint is fully token-gated** (it
   exposes a write tool, so every request needs the token) in this MVP.
+- ✅ 🧙 **Browser setup wizard** — configure a fresh install at `/setup` (choose a bundle,
+  generate an ingestion token, set an admin password); env vars still override (M4a).
+- ✅ 🗂️ **Multiple workspaces** — one hub serves several independent workspaces, each with
+  its own bundle, index, token, and URLs (`/w/<slug>/…`); tokens are workspace-scoped (M5).
+- ✅ 🧭 **In-app usage guide** — `/guide` shows per-workspace connect commands, verify
+  recipes, and troubleshooting; every issued token comes with copy-paste "verify it now" tests.
 - 🔜 🔐 **GitHub auth** — sign in with GitHub; access scoped to your workspace repo (M2b).
 - 🔜 🔄 **Git-native sync** — webhook + poll keep the index in sync with your repo.
 - 🔜 🐳 **Self-host** — Docker + docker-compose, configured by env.
@@ -131,17 +139,23 @@ npm run okf -- query bundles/example orders  # full-text search
 npm run okf -- index bundles/example okf.sqlite  # build a SQLite index file
 ```
 
-## Run the web app (M1b)
+## Run the web app
 
 ```bash
 npm install
 npm run dev          # http://localhost:3000
-# OKF_BUNDLE_DIR=/path/to/your/okf-bundle npm run dev   # use your own bundle
 ```
+
+On first run, any page redirects to **`/setup`** — the wizard configures the hub (pick a
+bundle, get an ingestion token, set an admin password) with no env vars needed. To skip the
+wizard, pre-seed `OKF_INGEST_TOKEN` and `OKF_BUNDLE_DIR` instead (they always override the
+file config — see [Web setup wizard](#web-setup-wizard-m4a) below).
 
 Pages: `/` (browse by type + concept graph) · `/concept/<path>` (rendered concept +
 backlinks) · `/search?q=` (full-text search) · `/graph` (full-graph explorer) ·
-`/work` (WorkRecord timeline) · `/concept/new` and `/edit/<path>` (editor).
+`/work` (WorkRecord timeline) · `/concept/new` and `/edit/<path>` (editor) ·
+`/setup` (setup / admin settings / workspaces) · `/guide` (how to connect agents) ·
+`/w/<slug>/…` (a specific workspace).
 
 ## Editing (M2a)
 
@@ -272,9 +286,11 @@ Vitest. **Planned:** GitHub OAuth (Auth.js) · Docker.
 
 ## Roadmap
 
-- **v1** — the features above (browse, search, graph, edit→PR, MCP/REST, self-host).
-- **v2+** — semantic/hybrid search, multi-tenant, an OKF "enrichment agent" that
-  drafts concepts from your data sources, real-time collaborative editing, finer RBAC.
+- **v1** — the features above (browse, search, graph, edit→PR, MCP/REST, self-host,
+  browser setup, multiple workspaces).
+- **v2+** — semantic/hybrid search, per-workspace auth + RBAC (v1 ships multiple
+  workspaces but a single hub admin), an OKF "enrichment agent" that drafts concepts
+  from your data sources, and real-time collaborative editing.
 
 ## Contributing
 
