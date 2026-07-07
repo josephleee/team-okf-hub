@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import type { SetupInput } from '../lib/setup-actions';
 import { CopyButton } from './copy-button';
+import { AgentSnippets } from './agent-snippets';
 
-type Result = { ok: true; token: string; mcpCommand: string } | { ok: false; error: string };
+type Result = { ok: true; slug: string; token: string } | { ok: false; error: string };
 type BundleSource = 'example' | 'local' | 'git';
 
 const STEP_TITLES = ['Name this workspace', 'Choose a knowledge bundle', 'Set an admin password'];
@@ -17,7 +18,7 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
   const [adminPassword, setAdminPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ token: string; mcpCommand: string } | null>(null);
+  const [done, setDone] = useState<{ slug: string; token: string } | null>(null);
 
   function stepValid(): boolean {
     if (step === 0) return workspaceName.trim().length > 0;
@@ -34,7 +35,7 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
     setError(null);
     try {
       const res = await onComplete({ workspaceName, bundleSource, localPath, gitUrl, adminPassword });
-      if (res.ok) setDone({ token: res.token, mcpCommand: res.mcpCommand });
+      if (res.ok) setDone({ slug: res.slug, token: res.token });
       // Workspace and password are gated client-side, so a failure with a local/git
       // source is a bundle-validation problem — send the user back to the bundle step
       // to fix the path/URL. The example bundle can't produce one, so leave that error
@@ -54,7 +55,7 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
     else void finish();
   }
 
-  if (done) return <SetupDone token={done.token} mcpCommand={done.mcpCommand} />;
+  if (done) return <SetupDone slug={done.slug} token={done.token} />;
 
   return (
     <form className="okf-setup" onSubmit={handleSubmit}>
@@ -96,7 +97,7 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
             {bundleSource === 'local' && (
               <>
                 <input aria-label="local path" value={localPath} onChange={(e) => setLocalPath(e.target.value)} placeholder="/srv/okf-bundle" />
-                <p className="okf-setup__hint">A folder already on this server. Must contain at least one .md file.</p>
+                <p className="okf-setup__hint">Absolute path on the server — ~ is not expanded. Needs at least one .md file at its top level. e.g. /srv/okf-bundle.</p>
               </>
             )}
             <label><input type="radio" name="src" checked={bundleSource === 'git'} onChange={() => setBundleSource('git')} /> Clone a public git URL</label>
@@ -147,13 +148,13 @@ export function SetupWizard({ onComplete }: { onComplete: (input: SetupInput) =>
   );
 }
 
-function SetupDone({ token, mcpCommand }: { token: string; mcpCommand: string }) {
+function SetupDone({ slug, token }: { slug: string; token: string }) {
   return (
     <section className="okf-setup okf-setup--done">
       <h1>Setup complete ✓</h1>
       <p className="okf-setup__help">
         This hub now serves your <b>knowledge bundle</b> — the folder of Markdown concepts you chose.
-        The token and command below connect your AI agents (Claude Code) to it, so they can
+        The token and commands below connect your AI agents (Claude Code) to it, so they can
         <b> search the knowledge</b> here and <b>record the work they finish</b> back into it.
       </p>
 
@@ -164,12 +165,8 @@ function SetupDone({ token, mcpCommand }: { token: string; mcpCommand: string })
         <CopyButton text={token} />
       </div>
 
-      <h2>Connect an agent (MCP)</h2>
-      <p className="okf-setup__hint">Run this where Claude Code is installed. It registers this hub as an MCP server, giving agents tools to search &amp; read concepts and record completed work.</p>
-      <div className="okf-setup__copyrow">
-        <pre><code>{mcpCommand}</code></pre>
-        <CopyButton text={mcpCommand} />
-      </div>
+      <h2>Try it now</h2>
+      <AgentSnippets slug={slug} token={token} />
 
       <div className="okf-setup__note">
         <b>What this applies to:</b> this hub and the bundle you chose — <b>not your code repo</b>, and it does not scan or
@@ -177,7 +174,7 @@ function SetupDone({ token, mcpCommand }: { token: string; mcpCommand: string })
       </div>
 
       <h2>What&rsquo;s next</h2>
-      <p><a href="/">Browse the hub →</a> · <a href="/work">Work timeline →</a> · <a href="/setup">Manage settings →</a></p>
+      <p><a href="/">Browse the hub →</a> · <a href="/work">Work timeline →</a> · <a href="/guide">Read the guide →</a> · <a href="/setup">Manage settings →</a></p>
     </section>
   );
 }

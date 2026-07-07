@@ -55,11 +55,11 @@ export function validateLocalPath(path: string): SourceResult {
   try {
     st = statSync(path);
   } catch {
-    return { ok: false, error: `path does not exist: ${path}` };
+    return { ok: false, error: `path does not exist: ${path} — use an absolute path on the server (~ is not expanded)` };
   }
   if (!st.isDirectory()) return { ok: false, error: 'path is not a directory' };
   const hasMd = readdirSync(path).some((n) => n.endsWith('.md'));
-  if (!hasMd) return { ok: false, error: 'directory contains no .md files' };
+  if (!hasMd) return { ok: false, error: 'directory contains no .md files — add at least one .md at the top level' };
   return { ok: true, path };
 }
 

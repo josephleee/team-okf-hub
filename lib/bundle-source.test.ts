@@ -45,6 +45,16 @@ describe('validateLocalPath', () => {
     expect(validateLocalPath(d).ok).toBe(false); // no .md
     rmSync(d, { recursive: true, force: true });
   });
+  it('error messages teach the fix', () => {
+    const missing = validateLocalPath('/no/such/path');
+    expect(missing.ok).toBe(false);
+    if (!missing.ok) expect(missing.error).toContain('~ is not expanded');
+    const d = mkdtempSync(join(tmpdir(), 'okf-lp3-'));
+    const empty = validateLocalPath(d);
+    expect(empty.ok).toBe(false);
+    if (!empty.ok) expect(empty.error).toContain('top level');
+    rmSync(d, { recursive: true, force: true });
+  });
 });
 
 describe('cloneGitBundle', () => {

@@ -28,9 +28,11 @@ describe('WorkTimeline', () => {
     expect(screen.getByRole('link', { name: 'https://x/pr/1' }).getAttribute('href')).toBe('https://x/pr/1');
   });
 
-  it('shows an empty state when there are no records', () => {
+  it('shows an empty state with a runnable example and a guide link', async () => {
     render(<WorkTimeline view={{ filter: {}, total: 0, groups: [] }} />);
     expect(screen.getByText(/No work records yet/i)).toBeTruthy();
+    expect(await screen.findByText(/curl -X POST http:\/\/localhost:3000\/api\/v1\/work/)).toBeTruthy(); // jsdom origin
+    expect(screen.getByRole('link', { name: /read the guide/i }).getAttribute('href')).toBe('/guide');
   });
 
   it('renders https artifact link but blocks javascript: scheme', () => {

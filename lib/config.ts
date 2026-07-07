@@ -7,7 +7,25 @@ export interface BundleConfig {
   gitUrl?: string;
 }
 
+export interface WorkspaceConfig {
+  slug: string;
+  name: string;
+  bundle: BundleConfig;
+  ingestTokenHash: string;
+  createdAt: string;
+}
+
 export interface OkfConfig {
+  version: 2;
+  adminPasswordHash: string;
+  sessionSecret: string;
+  setupComplete: boolean;
+  defaultWorkspace: string;
+  workspaces: WorkspaceConfig[];
+  createdAt: string;
+}
+
+interface OkfConfigV1 {
   version: 1;
   workspaceName: string;
   bundle: BundleConfig;
@@ -26,6 +44,34 @@ function configPath(): string {
   return join(configDir(), 'config.json');
 }
 
+export function workspaceSlug(name: string, taken: string[]): string {
+  const base =
+    name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'workspace';
+  if (!taken.includes(base)) return base;
+  let n = 2;
+  while (taken.includes(`${base}-${n}`)) n++;
+  return `${base}-${n}`;
+}
+
+function migrateV1(v1: OkfConfigV1): OkfConfig {
+  const slug = workspaceSlug(v1.workspaceName, []);
+  return {
+    version: 2,
+    adminPasswordHash: v1.adminPasswordHash,
+    sessionSecret: v1.sessionSecret,
+    setupComplete: v1.setupComplete,
+    defaultWorkspace: slug,
+    workspaces: [{
+      slug,
+      name: v1.workspaceName,
+      bundle: v1.bundle,
+      ingestTokenHash: v1.ingestTokenHash,
+      createdAt: v1.createdAt,
+    }],
+    createdAt: v1.createdAt,
+  };
+}
+
 let cache: OkfConfig | null | undefined;
 
 export function invalidateConfigCache(): void {
@@ -35,12 +81,21 @@ export function invalidateConfigCache(): void {
 export function readConfig(): OkfConfig | null {
   if (cache !== undefined) return cache;
   try {
-    const raw = readFileSync(configPath(), 'utf8');
-    cache = JSON.parse(raw) as OkfConfig;
+    const parsed = JSON.parse(readFileSync(configPath(), 'utf8')) as { version?: number };
+    if (parsed.version === 1) {
+      const migrated = migrateV1(parsed as unknown as OkfConfigV1);
+      try {
+        writeConfig(migrated); // persist the migration once; sets cache
+      } catch {
+        cache = migrated; // persist failed (e.g. read-only fs) — stay configured in memory
+      }
+    } else {
+      cache = parsed as unknown as OkfConfig;
+    }
   } catch {
     cache = null;
   }
-  return cache;
+  return cache ?? null;
 }
 
 export function writeConfig(config: OkfConfig): void {
@@ -49,11 +104,24 @@ export function writeConfig(config: OkfConfig): void {
   cache = config;
 }
 
-export function resolveBundleDir(): string {
-  const env = process.env.OKF_BUNDLE_DIR;
-  if (env) return env;
+export function defaultWorkspaceSlug(): string | null {
+  return readConfig()?.defaultWorkspace ?? null;
+}
+
+export function getWorkspace(slug?: string): WorkspaceConfig | null {
   const cfg = readConfig();
-  if (cfg?.bundle?.path) return cfg.bundle.path;
+  if (!cfg) return null;
+  const target = slug ?? cfg.defaultWorkspace;
+  return cfg.workspaces.find((w) => w.slug === target) ?? null;
+}
+
+export function resolveBundleDir(slug?: string): string {
+  const cfg = readConfig();
+  // OKF_BUNDLE_DIR only ever meant "the bundle this hub serves" — that is the default workspace.
+  const isDefault = !slug || slug === cfg?.defaultWorkspace;
+  if (isDefault && process.env.OKF_BUNDLE_DIR) return process.env.OKF_BUNDLE_DIR;
+  const ws = getWorkspace(slug);
+  if (ws?.bundle?.path) return ws.bundle.path;
   return 'bundles/example';
 }
 
